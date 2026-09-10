@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-dark: #1B4332;
+  --color-brand-light: #2D6A4F;
+  --color-brand-accent: #40916C;
+  --color-brand-gold: #D4AF37;
+
+  --color-prithvi: #C97B4A;
+  --color-jal: #1B6B93;
+  --color-agni: #D9822B;
+  --color-vayu: #6FA8C9;
+  --color-akash: #7A6C9E;
+
+  --color-status-healthy: #52A373;
+  --color-status-moderate: #E0A02D;
+  --color-status-stressed: #C4554D;
+
+  --color-paper: #FAF8F3;
+  --color-charcoal: #12181A;
+  --color-surface-light: #FFFFFF;
+  --color-surface-dark: #1A2326;
+
+  --font-serif: "Fraunces", "Source Serif 4", Georgia, serif;
+  --font-sans: "Inter", "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-devanagari: "Noto Sans Devanagari", sans-serif;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-paper);
+  color: #1e293b;
+}
+
+.dark body {
+  background-color: var(--color-charcoal);
+  color: #f8fafc;
+}
+
+h1, h2, h3, .font-serif-title {
+  font-family: var(--font-serif);
+}
+
+.font-devanagari {
+  font-family: var(--font-devanagari);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(27, 67, 50, 0.3);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(27, 67, 50, 0.6);
+}
+
+/* Subtle background animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(1deg); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+.animate-float {
+  animation: float 8s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulseGlow 4s ease-in-out infinite;
+}
+
+/* Leaflet Map overrides for dark mode & clean styling */
+.leaflet-container {
+  border-radius: 0.75rem;
+  z-index: 10;
+}
+.dark .leaflet-tile {
+  filter: brightness(0.7) invert(1) contrast(1.2) hue-rotate(200deg);
+}
+
+/* Custom paper texture card feel */
+.card-paper {
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(27, 67, 50, 0.08);
+}
+.dark .card-paper {
+  background-color: rgba(26, 35, 38, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@media print {
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+}
