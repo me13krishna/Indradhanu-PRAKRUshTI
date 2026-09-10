@@ -8,26 +8,32 @@ export const AboutSection: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 animate-fadeIn font-sans">
       
-      {/* Hero Header */}
-      <div className="card-paper rounded-3xl p-8 sm:p-12 shadow-2xl border border-emerald-900/10 dark:border-white/10 mb-8 relative overflow-hidden text-center">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-dark to-emerald-800 flex items-center justify-center text-white font-serif font-extrabold text-3xl mx-auto mb-4 shadow-xl">
-          प्र
+      {/* Hero Header Banner with Official Artwork */}
+      <div className="card-paper rounded-3xl p-8 sm:p-12 shadow-2xl border border-emerald-900/10 dark:border-white/10 mb-8 relative overflow-hidden text-center flex flex-col items-center">
+        <div className="relative mb-6">
+          <img
+            src="/logo.jpg"
+            alt="PRAKRUshTI Official Artwork"
+            className="w-44 h-44 sm:w-56 sm:h-56 rounded-3xl object-cover shadow-2xl ring-4 ring-emerald-600/30 hover:scale-105 transition-transform duration-500"
+          />
+          <div className="absolute inset-0 rounded-3xl ring-1 ring-black/10 dark:ring-white/20 pointer-events-none" />
         </div>
+
         <h1 className="font-serif text-3xl sm:text-4xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">
           PRAKRUshTI
         </h1>
         <p className="text-sm font-devanagari text-emerald-700 dark:text-emerald-400 font-semibold mt-1">
           Prakruti (प्रकृति, Nature) + Srishti (सृष्टि, Creation)
         </p>
-        <p className="text-base font-serif italic text-slate-600 dark:text-slate-300 mt-4 max-w-xl mx-auto">
+        <p className="text-base sm:text-lg font-serif italic text-slate-600 dark:text-slate-300 mt-4 max-w-xl mx-auto">
           "One Earth. One ecosystem. One shared responsibility."
         </p>
 
         <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <span className="px-3 py-1 rounded-full text-xs font-mono font-semibold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300">
+          <span className="px-3.5 py-1 rounded-full text-xs font-mono font-semibold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300">
             Indradhanu PCCOE Grand Challenge 2026
           </span>
-          <span className="px-3 py-1 rounded-full text-xs font-mono font-semibold bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border border-blue-300">
+          <span className="px-3.5 py-1 rounded-full text-xs font-mono font-semibold bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border border-blue-300">
             Theme: AI for Climate Change
           </span>
         </div>

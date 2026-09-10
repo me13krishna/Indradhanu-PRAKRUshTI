@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Globe, Sun, Moon, Sparkles, BarChart2, MapPin, Sliders, BookOpen, Info, FileText } from 'lucide-react';
+import { Globe, Sun, Moon, BarChart2, MapPin, Sliders, BookOpen, Info, FileText } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 interface HeaderProps {
@@ -31,7 +31,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, onExpor
     { id: 'dashboard', label: t('fiveElements'), icon: BarChart2 },
     { id: 'compare', label: t('compareMode'), icon: Sliders },
     { id: 'hotspots', label: t('globalHotspots'), icon: MapPin },
-    { id: 'simulator', label: t('whatIfSimulator'), icon: Sparkles },
+    { id: 'simulator', label: t('whatIfSimulator'), icon: Sliders },
     { id: 'knowledge', label: t('knowledgeBase'), icon: BookOpen },
     { id: 'about', label: t('aboutUs'), icon: Info },
   ];
@@ -42,13 +42,19 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, onExpor
         <div className="flex items-center justify-between h-20">
           
           {/* Logo & Brand Title */}
-          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setActiveTab('dashboard')}>
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-brand-dark via-emerald-800 to-teal-900 flex items-center justify-center shadow-lg shadow-emerald-900/20 text-white font-serif font-bold text-xl ring-2 ring-emerald-500/30">
-              प्र
+          <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => setActiveTab('dashboard')}>
+            <div className="relative">
+              <img
+                src="/logo.jpg"
+                alt="PRAKRUshTI Official Logo"
+                className="w-12 h-12 rounded-xl object-cover shadow-md shadow-emerald-900/20 ring-2 ring-emerald-500/40 group-hover:scale-105 transition-transform duration-300"
+              />
+              <div className="absolute inset-0 rounded-xl ring-1 ring-black/10 dark:ring-white/20 pointer-events-none" />
             </div>
+
             <div>
               <div className="flex items-center space-x-2">
-                <span className="font-serif text-2xl font-bold tracking-tight text-brand-dark dark:text-emerald-400">
+                <span className="font-serif text-2xl font-bold tracking-tight text-brand-dark dark:text-emerald-400 group-hover:text-emerald-600 transition-colors">
                   {t('appName')}
                 </span>
                 <span className="text-[10px] px-2 py-0.5 rounded-full font-mono bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300 font-medium">

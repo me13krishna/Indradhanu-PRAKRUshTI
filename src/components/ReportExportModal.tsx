@@ -8,7 +8,6 @@ interface ReportExportModalProps {
 }
 
 export const ReportExportModal: React.FC<ReportExportModalProps> = ({ analysis, onClose }) => {
-
   const handlePrint = () => {
     window.print();
   };
@@ -27,18 +26,21 @@ export const ReportExportModal: React.FC<ReportExportModalProps> = ({ analysis, 
 
         {/* Dossier Header */}
         <div className="flex items-center justify-between border-b pb-6 mb-6 border-slate-200 dark:border-white/10">
-          <div>
-            <div className="flex items-center space-x-2">
-              <span className="font-serif font-extrabold text-2xl text-brand-dark dark:text-emerald-400">
-                PRAKRUshTI
-              </span>
-              <span className="text-xs px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 font-mono font-bold">
-                OFFICIAL DOSSIER
-              </span>
+          <div className="flex items-center space-x-3">
+            <img src="/logo.jpg" alt="PRAKRUshTI Logo" className="w-12 h-12 rounded-xl object-cover ring-2 ring-emerald-500/40 shadow-sm" />
+            <div>
+              <div className="flex items-center space-x-2">
+                <span className="font-serif font-extrabold text-2xl text-brand-dark dark:text-emerald-400">
+                  PRAKRUshTI
+                </span>
+                <span className="text-xs px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 font-mono font-bold">
+                  OFFICIAL DOSSIER
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 font-mono mt-0.5">
+                Environmental Snapshot Report — Compiled {new Date(analysis.capturedAt).toLocaleDateString()}
+              </p>
             </div>
-            <p className="text-xs text-slate-500 font-mono mt-1">
-              Environmental Snapshot Report — Compiled {new Date(analysis.capturedAt).toLocaleDateString()}
-            </p>
           </div>
 
           <button
