@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { GlobalHotspotItem, LocationData } from '../types/prakrushti';
-import { MapPin, ShieldAlert, CheckCircle2, Globe, Map as MapIcon, ArrowRight } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
+import { MapPin, ShieldAlert, CheckCircle2, Globe, Map as MapIcon, ArrowRight, AlertTriangle } from 'lucide-react';
 
 interface GlobalHotspotsProps {
   onSelectCity: (loc: LocationData) => void;
@@ -20,11 +21,15 @@ export const SEEDED_HOTSPOTS: GlobalHotspotItem[] = [
 ];
 
 export const GlobalHotspots: React.FC<GlobalHotspotsProps> = ({ onSelectCity }) => {
+  const { language } = useLanguage();
+  const isHi = language === 'hi';
+
   const [filter, setFilter] = useState<'all' | 'healthiest' | 'stressed'>('all');
   const [selectedHotspot, setSelectedHotspot] = useState<GlobalHotspotItem | null>(null);
 
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const leafletInstance = useRef<any>(null);
+  const markersMap = useRef<Map<string, any>>(new Map());
   const markersGroup = useRef<any>(null);
 
   const sorted = [...SEEDED_HOTSPOTS].sort((a, b) => b.prakrutiScore - a.prakrutiScore);
@@ -58,6 +63,7 @@ export const GlobalHotspots: React.FC<GlobalHotspotsProps> = ({ onSelectCity }) 
       // Clear existing markers and rebuild based on displayedList
       if (markersGroup.current) {
         markersGroup.current.clearLayers();
+        markersMap.current.clear();
 
         displayedList.forEach((item) => {
           const isHealthy = item.prakrutiScore >= 75;
@@ -116,7 +122,7 @@ export const GlobalHotspots: React.FC<GlobalHotspotsProps> = ({ onSelectCity }) 
           actionBtn.style.fontSize = '11px';
           actionBtn.style.fontWeight = '600';
           actionBtn.style.cursor = 'pointer';
-          actionBtn.textContent = '📊 Open in Dashboard';
+          actionBtn.textContent = isHi ? '📊 मुख्य डैशबोर्ड पर खोलें' : '📊 Open in Live Dashboard';
           actionBtn.onclick = () => {
             onSelectCity({
               name: item.name,
@@ -133,14 +139,15 @@ export const GlobalHotspots: React.FC<GlobalHotspotsProps> = ({ onSelectCity }) 
           });
 
           markersGroup.current.addLayer(circleMarker);
+          markersMap.current.set(item.name, circleMarker);
         });
       }
     });
 
     return () => {
-      // Map instance is preserved across filter changes
+      // Preserved across filter changes
     };
-  }, [displayedList, onSelectCity]);
+  }, [displayedList, isHi, onSelectCity]);
 
   // Clean up leaflet on component unmount
   useEffect(() => {
@@ -152,12 +159,17 @@ export const GlobalHotspots: React.FC<GlobalHotspotsProps> = ({ onSelectCity }) 
     };
   }, []);
 
+  // Synchronized card click: fly to location and open popup
   const handleCardClick = (item: GlobalHotspotItem) => {
     setSelectedHotspot(item);
     if (leafletInstance.current) {
-      leafletInstance.current.flyTo([item.lat, item.lng], 6, {
+      leafletInstance.current.flyTo([item.lat, item.lng], 5, {
         duration: 1.2,
       });
+      const marker = markersMap.current.get(item.name);
+      if (marker) {
+        marker.openPopup();
+      }
     }
   };
 
@@ -165,17 +177,32 @@ export const GlobalHotspots: React.FC<GlobalHotspotsProps> = ({ onSelectCity }) 
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fadeIn">
       
       {/* Title Header */}
-      <div className="text-center max-w-2xl mx-auto mb-8">
-        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 mb-2">
+      <div className="text-center max-w-3xl mx-auto mb-6 space-y-2">
+        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
           <Globe className="w-3.5 h-3.5" />
-          <span>Global Planetary Intelligence</span>
+          <span>{isHi ? 'वैश्विक जैव-जलवायु संदर्भ' : 'Global Bioclimatic Benchmarks'}</span>
         </div>
-        <h2 className="font-serif text-3xl font-extrabold text-slate-800 dark:text-slate-100">
-          World Climate Stress & Ecological Hotspot Map
+        <h2 className="font-serif text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-slate-100">
+          {isHi ? 'वैश्विक जलवायु तनाव एवं हॉटस्पॉट मानचित्र' : 'Global Climate Stress & Ecological Hotspots'}
         </h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 font-sans">
-          Interactive geospatial tracking of planetary resilience and climate vulnerability hotspots across all 5 elements.
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-sans max-w-2xl mx-auto">
+          {isHi
+            ? 'विभिन्न बायोम एवं पारिस्थितिक क्षेत्रों में पंचमहाभूत संतुलन का तुलनात्मक संदर्भ परिदृश्य।'
+            : 'Comparative benchmark scenarios examining planetary resilience across distinct bioclimatic zones.'}
         </p>
+      </div>
+
+      {/* Prominent Scientific Demonstration Disclosure Banner */}
+      <div className="mb-8 rounded-2xl bg-amber-500/10 border-2 border-amber-500/30 p-4 sm:p-5 flex items-start space-x-3 text-amber-900 dark:text-amber-200">
+        <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+        <div className="text-xs sm:text-sm font-sans leading-relaxed">
+          <span className="font-bold font-mono uppercase tracking-wider block text-amber-800 dark:text-amber-300 mb-0.5">
+            {isHi ? 'वैज्ञानिक प्रकटीकरण: शैक्षणिक संदर्भ डेटासेट (डेमो)' : 'Scientific Disclosure: Curated Demonstration Dataset'}
+          </span>
+          {isHi
+            ? 'यह खंड ऐतिहासिक एवं बायोम-विशिष्ट पारिस्थितिक संकटों (जैसे अराल सागर, सहारा रेगिस्तान, शहरी धुंध) को दर्शाने हेतु संकलित संदर्भ परिदृश्य प्रदर्शित करता है। यह वास्तविक समय के उपग्रह संवेदक नहीं हैं। किसी भी शहर पर क्लिक करके उसका वास्तविक लाइव ईसीएमडब्ल्यूएफ विश्लेषण खोला जा सकता है।'
+            : 'These seeded scenarios are curated educational archetypes representing acute ecological stress profiles (hyper-arid soil, extreme smog, tectonic faulting). They illustrate the Panch Mahabhuta scoring engine on reference environments and are not presented as live global monitoring feeds.'}
+        </div>
       </div>
 
       {/* Filter Tabs */}
@@ -188,7 +215,7 @@ export const GlobalHotspots: React.FC<GlobalHotspotsProps> = ({ onSelectCity }) 
               : 'bg-white dark:bg-white/5 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10'
           }`}
         >
-          All Monitored Cities ({SEEDED_HOTSPOTS.length})
+          {isHi ? `सभी संदर्भ शहर (${SEEDED_HOTSPOTS.length})` : `All Benchmark Cities (${SEEDED_HOTSPOTS.length})`}
         </button>
         <button
           onClick={() => setFilter('healthiest')}
@@ -199,7 +226,7 @@ export const GlobalHotspots: React.FC<GlobalHotspotsProps> = ({ onSelectCity }) 
           }`}
         >
           <CheckCircle2 className="w-3.5 h-3.5" />
-          <span>Top 5 Resilient Regions</span>
+          <span>{isHi ? 'उच्चतम लचीलापन (शीर्ष ५)' : 'Top 5 Resilient Biomes'}</span>
         </button>
         <button
           onClick={() => setFilter('stressed')}
@@ -210,47 +237,47 @@ export const GlobalHotspots: React.FC<GlobalHotspotsProps> = ({ onSelectCity }) 
           }`}
         >
           <ShieldAlert className="w-3.5 h-3.5" />
-          <span>Top 5 Under Acute Stress</span>
+          <span>{isHi ? 'तीव्र पारिस्थितिक तनाव (शीर्ष ५)' : 'Top 5 Under Stress'}</span>
         </button>
       </div>
 
-      {/* Interactive Global Leaflet Map Container */}
-      <div className="card-paper rounded-3xl p-4 shadow-2xl border border-emerald-900/15 dark:border-white/10 mb-8 overflow-hidden">
-        <div className="flex items-center justify-between px-3 py-2 mb-2 border-b border-slate-100 dark:border-white/5">
+      {/* Interactive Global Leaflet Map Container (Visual Centerpiece) */}
+      <div className="card-paper rounded-3xl p-4 sm:p-5 shadow-2xl border border-emerald-900/15 dark:border-white/10 mb-8 overflow-hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between px-3 py-2 mb-3 border-b border-slate-100 dark:border-white/5 gap-1">
           <div className="flex items-center space-x-2">
             <MapIcon className="w-4 h-4 text-emerald-600" />
             <span className="text-xs font-bold font-mono uppercase tracking-wider text-slate-700 dark:text-slate-200">
-              Interactive Leaflet World Hotspot Map
+              {isHi ? 'इंटरैक्टिव वैश्विक हॉटस्पॉट मानचित्र' : 'Interactive Geospatial Hotspot Map'}
             </span>
           </div>
           <span className="text-[11px] text-slate-400 font-mono">
-            Click any circular marker to view details or launch full dashboard
+            {isHi ? 'विवरण देखने हेतु किसी भी मार्कर पर क्लिक करें' : 'Click markers or cards to inspect and synchronize'}
           </span>
         </div>
 
         <div
           ref={mapContainerRef}
-          className="w-full h-80 sm:h-96 rounded-2xl overflow-hidden z-10 shadow-inner"
+          className="w-full h-80 sm:h-96 lg:h-[440px] rounded-2xl overflow-hidden z-10 shadow-inner"
         />
 
         {/* Map Legend */}
         <div className="flex flex-wrap items-center justify-center gap-6 mt-4 pt-3 border-t border-slate-100 dark:border-white/5 text-xs font-mono">
           <div className="flex items-center space-x-2">
             <span className="w-3 h-3 rounded-full bg-emerald-600" />
-            <span className="text-slate-600 dark:text-slate-300">Resilient (Score ≥ 75)</span>
+            <span className="text-slate-600 dark:text-slate-300">Resilient (≥ 75)</span>
           </div>
           <div className="flex items-center space-x-2">
             <span className="w-3 h-3 rounded-full bg-amber-500" />
-            <span className="text-slate-600 dark:text-slate-300">Moderate Equilibrium (55–74)</span>
+            <span className="text-slate-600 dark:text-slate-300">Equilibrium (55–74)</span>
           </div>
           <div className="flex items-center space-x-2">
             <span className="w-3 h-3 rounded-full bg-rose-600" />
-            <span className="text-slate-600 dark:text-slate-300">Under Stress (Score &lt; 50)</span>
+            <span className="text-slate-600 dark:text-slate-300">Stressed (&lt; 50)</span>
           </div>
         </div>
       </div>
 
-      {/* Hotspots Grid Cards */}
+      {/* Synchronized Hotspots Grid Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {displayedList.map((item, idx) => {
           const isStressed = item.prakrutiScore < 50;
@@ -260,77 +287,63 @@ export const GlobalHotspots: React.FC<GlobalHotspotsProps> = ({ onSelectCity }) 
             <div
               key={idx}
               onClick={() => handleCardClick(item)}
-              className={`card-paper p-5 rounded-2xl border cursor-pointer hover:shadow-2xl hover:-translate-y-1 transition-all group relative overflow-hidden ${
+              className={`p-5 rounded-2xl transition-all cursor-pointer border ${
                 isSelected
-                  ? 'border-emerald-600 ring-2 ring-emerald-500/30'
-                  : 'border-slate-200/80 dark:border-white/10'
+                  ? 'ring-2 ring-emerald-500 shadow-xl bg-emerald-50/40 dark:bg-white/10 border-emerald-500'
+                  : 'card-paper hover:shadow-md border-slate-200/70 dark:border-white/10'
               }`}
             >
-              {/* Top Accent Strip */}
-              <div
-                className="absolute top-0 left-0 right-0 h-1.5 transition-all group-hover:h-2"
-                style={{ backgroundColor: isStressed ? '#E11D48' : item.prakrutiScore >= 75 ? '#059669' : '#D97706' }}
-              />
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center space-x-2">
+                  <MapPin className={`w-4 h-4 ${isStressed ? 'text-rose-500' : 'text-emerald-600'}`} />
+                  <span className="font-serif font-bold text-sm text-slate-800 dark:text-slate-100">
+                    {item.name}
+                  </span>
+                </div>
+                <span className={`text-xs font-mono font-extrabold px-2 py-0.5 rounded-full ${
+                  item.prakrutiScore >= 75
+                    ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'
+                    : item.prakrutiScore < 50
+                    ? 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300'
+                    : 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300'
+                }`}>
+                  {item.prakrutiScore}/100
+                </span>
+              </div>
 
-              <div className="flex items-start justify-between">
+              <p className="text-xs text-slate-600 dark:text-slate-300 font-sans mb-3 min-h-[32px] line-clamp-2">
+                {item.primaryStress}
+              </p>
+
+              {/* Elemental Micro-Gauges */}
+              <div className="grid grid-cols-5 gap-1 pt-2 border-t border-slate-100 dark:border-white/5 text-center font-mono text-[10px]">
                 <div>
-                  <div className="flex items-center space-x-2">
-                    <MapPin className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                    <h3 className="font-serif text-base font-bold text-slate-800 dark:text-slate-100 group-hover:text-emerald-600 transition-colors">
-                      {item.name}
-                    </h3>
-                  </div>
-                  <p className="text-[11px] text-slate-400 font-mono mt-0.5">
-                    {item.lat.toFixed(2)}°, {item.lng.toFixed(2)}° • {item.countryCode}
-                  </p>
+                  <span className="text-slate-400 block text-[9px]">EARTH</span>
+                  <span className="font-bold text-amber-600">{item.elementStatus.prithvi}</span>
                 </div>
-
-                <div className="text-right">
-                  <div
-                    className="text-2xl font-serif font-extrabold"
-                    style={{ color: isStressed ? '#E11D48' : item.prakrutiScore >= 75 ? '#059669' : '#D97706' }}
-                  >
-                    {item.prakrutiScore}
-                  </div>
-                  <span className="text-[10px] text-slate-400 font-mono">/ 100</span>
+                <div>
+                  <span className="text-slate-400 block text-[9px]">WATER</span>
+                  <span className="font-bold text-blue-600">{item.elementStatus.jal}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block text-[9px]">FIRE</span>
+                  <span className="font-bold text-orange-600">{item.elementStatus.agni}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block text-[9px]">AIR</span>
+                  <span className="font-bold text-emerald-600">{item.elementStatus.vayu}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block text-[9px]">SPACE</span>
+                  <span className="font-bold text-purple-600">{item.elementStatus.akash}</span>
                 </div>
               </div>
 
-              {/* Stress / Vulnerability Callout */}
-              <div className="mt-3 p-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200/50 dark:border-white/5">
-                <span className="text-[10px] uppercase font-mono font-bold text-slate-400 block mb-0.5">
-                  Primary Climate Stress:
-                </span>
-                <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 flex items-center space-x-1">
-                  {isStressed ? (
-                    <ShieldAlert className="w-3.5 h-3.5 text-rose-500 flex-shrink-0" />
-                  ) : (
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
-                  )}
-                  <span className="truncate">{item.primaryStress}</span>
-                </span>
-              </div>
-
-              {/* 5 Elemental Mini Bar Breakdowns */}
-              <div className="grid grid-cols-5 gap-1.5 mt-3 pt-3 border-t border-slate-100 dark:border-white/5 text-center">
-                {(['prithvi', 'jal', 'agni', 'vayu', 'akash'] as const).map((elem) => (
-                  <div key={elem} className="p-1 rounded bg-slate-100/60 dark:bg-white/5">
-                    <span className="text-[9px] font-mono uppercase text-slate-400 block">
-                      {elem.slice(0, 3)}
-                    </span>
-                    <span className="text-[11px] font-mono font-bold text-slate-700 dark:text-slate-200">
-                      {item.elementStatus[elem]}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Action Button */}
+              {/* Action Button: Open in Live Dashboard */}
               <div className="mt-4 pt-3 border-t border-slate-100 dark:border-white/5 flex items-center justify-between">
-                <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold group-hover:underline flex items-center space-x-1">
-                  <span>Pan to marker</span>
+                <span className="text-[11px] text-slate-400 font-mono">
+                  {item.lat.toFixed(1)}°, {item.lng.toFixed(1)}°
                 </span>
-
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -341,16 +354,18 @@ export const GlobalHotspots: React.FC<GlobalHotspotsProps> = ({ onSelectCity }) 
                       countryCode: item.countryCode,
                     });
                   }}
-                  className="px-3 py-1 rounded-lg text-xs font-semibold bg-brand-dark hover:bg-brand-light text-white transition flex items-center space-x-1 shadow-sm"
+                  className="inline-flex items-center space-x-1 text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline"
                 >
-                  <span>Analyze</span>
+                  <span>{isHi ? 'लाइव विश्लेषण खोलें' : 'Analyze Live'}</span>
                   <ArrowRight className="w-3 h-3" />
                 </button>
               </div>
+
             </div>
           );
         })}
       </div>
+
     </div>
   );
 };

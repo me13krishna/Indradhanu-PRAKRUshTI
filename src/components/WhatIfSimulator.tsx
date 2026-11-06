@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { PrakrutiAnalysis, WeatherData, HazardRisk } from '../types/prakrushti';
-import { Sparkles, Thermometer, CloudRain, Wind, RefreshCw, AlertTriangle } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
+import { Sparkles, Thermometer, CloudRain, Wind, RefreshCw, ShieldCheck, ArrowRight, Info } from 'lucide-react';
 import { computeElementScores } from '../services/scoringEngine';
 
 interface WhatIfSimulatorProps {
@@ -8,6 +9,8 @@ interface WhatIfSimulatorProps {
 }
 
 export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({ analysis }) => {
+  const { language } = useLanguage();
+  const isHi = language === 'hi';
 
   const [tempDelta, setTempDelta] = useState<number>(0); // -5 to +8 °C
   const [precipDelta, setPrecipDelta] = useState<number>(0); // -80% to +100%
@@ -44,7 +47,7 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({ analysis }) =>
     fire: simTemp > 30 && analysis.weather.humidityPct < 30 ? 'critical' : analysis.disasterRisk.fire,
   };
 
-  // Re-run the scientific scoring engine
+  // Re-run the actual scientific scoring engine (completely preserved)
   const simResult = computeElementScores(simWeather, simHazards);
   const simPrakruti = simResult.prakrutiScore;
   const scoreDiff = simPrakruti - analysis.prakrutiScore;
@@ -55,185 +58,269 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({ analysis }) =>
     setAqiDelta(0);
   };
 
+  const elementKeys = ['prithvi', 'jal', 'agni', 'vayu', 'akash'] as const;
+
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 animate-fadeIn">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fadeIn">
       
-      {/* Title */}
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 mb-2">
+      {/* Title Header */}
+      <div className="text-center max-w-3xl mx-auto mb-6 space-y-2">
+        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
           <Sparkles className="w-3.5 h-3.5" />
-          <span>Interactive Climate Scenario Playground</span>
+          <span>{isHi ? 'काल्पनिक जलवायु परिदृश्य मॉडलिंग' : 'Counterfactual Scenario Modeling'}</span>
         </div>
-        <h2 className="font-serif text-3xl font-extrabold text-slate-800 dark:text-slate-100">
-          What-If Ecological Simulator
+        <h2 className="font-serif text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-slate-100">
+          {isHi ? 'काल्पनिक "क्या होगा अगर" पारिस्थितिक सिम्युलेटर' : 'What-If Ecological Resilience Simulator'}
         </h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 font-sans">
-          Simulate hypothetical climate change parameters (+°C heat, drought, pollution surges) for{' '}
-          <strong className="text-slate-700 dark:text-slate-200">{analysis.location.name.split(',')[0]}</strong>.
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-sans max-w-2xl mx-auto">
+          {isHi
+            ? `${analysis.location.name.split(',')[0]} के वास्तविक आधारभूत आंकड़ों पर तापमान, वर्षा एवं प्रदूषण में परिवर्तन का प्रभाव देखें।`
+            : `Simulate hypothetical climate stress parameters for ${analysis.location.name.split(',')[0]} using identical scoring formulas.`}
         </p>
       </div>
 
+      {/* Explicit Non-Forecast Disclosure Banner */}
+      <div className="mb-8 rounded-2xl bg-amber-500/10 border-2 border-amber-500/30 p-4 sm:p-5 flex items-start space-x-3 text-amber-900 dark:text-amber-200">
+        <Info className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+        <div className="text-xs sm:text-sm font-sans leading-relaxed">
+          <span className="font-bold font-mono uppercase tracking-wider block text-amber-800 dark:text-amber-300 mb-0.5">
+            {isHi ? 'वैज्ञानिक प्रकटीकरण: काल्पनिक परिदृश्य (पूर्वानुमान नहीं)' : 'Scientific Disclosure: Hypothetical Simulation (Not a Forecast)'}
+          </span>
+          {isHi
+            ? 'यह सिम्युलेटर वास्तविक अवलोकनों या मौसम पूर्वानुमान को नहीं बदलता। यह केवल यह प्रदर्शित करता है कि यदि तापमान, वर्षा या प्रदूषण में कृत्रिम बदलाव आए, तो पंचमहाभूत p=0.5 सूत्र के अनुसार पारिस्थितिक संतुलन पर क्या असर पड़ेगा।'
+            : 'This simulator runs deterministic what-if parameter shifts through the exact computeElementScores() engine. Results represent hypothetical sensitivity modeling, not meteorological forecasts or observed conditions.'}
+        </div>
+      </div>
+
+      {/* Head-to-Head Comparison: Actual Baseline vs Simulated Scenario */}
+      <div className="card-paper rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200/80 dark:border-white/10 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-100 dark:border-white/5">
+          <div>
+            <span className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider">
+              {isHi ? 'आधारभूत बनाम काल्पनिक स्कोर' : 'Baseline vs. Simulated Score Comparison'}
+            </span>
+            <h3 className="font-serif text-lg font-bold text-slate-800 dark:text-slate-100">
+              {analysis.location.name}
+            </h3>
+          </div>
+
+          <div className="flex items-center space-x-3">
+            <div className={`px-3 py-1 rounded-full text-xs font-mono font-bold ${
+              scoreDiff > 0
+                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'
+                : scoreDiff < 0
+                ? 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300'
+                : 'bg-slate-100 text-slate-700 dark:bg-white/10 dark:text-slate-300'
+            }`}>
+              {isHi ? 'कुल प्रभाव:' : 'Net Impact:'} {scoreDiff > 0 ? `+${scoreDiff}` : scoreDiff} pts
+            </div>
+
+            {(tempDelta !== 0 || precipDelta !== 0 || aqiDelta !== 0) && (
+              <button
+                onClick={handleReset}
+                className="flex items-center space-x-1 px-3 py-1 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/20 text-slate-700 dark:text-slate-200 transition"
+              >
+                <RefreshCw className="w-3 h-3" />
+                <span>{isHi ? 'रीसेट करें' : 'Reset'}</span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* 2-Column Score Readout */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-stretch">
+          
+          {/* Baseline Score Card */}
+          <div className="p-5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-center flex flex-col justify-between">
+            <div>
+              <span className="text-xs font-bold text-slate-500 font-mono uppercase tracking-wider block">
+                {isHi ? 'वास्तविक आधारभूत स्थिति' : 'Actual Baseline'}
+              </span>
+              <div className="text-4xl sm:text-5xl font-serif font-extrabold text-slate-800 dark:text-slate-100 mt-2">
+                {analysis.prakrutiScore}
+              </div>
+              <span className="text-xs font-mono text-slate-400 block mt-0.5">/ 100</span>
+            </div>
+            <div className="mt-3 pt-3 border-t border-slate-200/50 dark:border-white/5 text-xs text-slate-600 dark:text-slate-400 font-mono">
+              Temp: {analysis.weather.temperatureC}°C • Precip: {analysis.weather.precipitationMm}mm • AQI: {analysis.weather.aqi}
+            </div>
+          </div>
+
+          {/* Simulated Score Card */}
+          <div className={`p-5 rounded-2xl border-2 text-center flex flex-col justify-between ${
+            scoreDiff < 0
+              ? 'bg-rose-50/50 dark:bg-rose-950/20 border-rose-500/40 text-rose-900 dark:text-rose-200'
+              : scoreDiff > 0
+              ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-500/40 text-emerald-900 dark:text-emerald-200'
+              : 'bg-slate-50 dark:bg-white/5 border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-100'
+          }`}>
+            <div>
+              <span className="text-xs font-bold font-mono uppercase tracking-wider block opacity-80">
+                {isHi ? 'काल्पनिक परिदृश्य परिणाम' : 'Simulated Scenario Outcome'}
+              </span>
+              <div className="text-4xl sm:text-5xl font-serif font-extrabold mt-2">
+                {simPrakruti}
+              </div>
+              <span className="text-xs font-mono opacity-60 block mt-0.5">/ 100</span>
+            </div>
+            <div className="mt-3 pt-3 border-t border-black/10 dark:border-white/10 text-xs font-mono opacity-80">
+              Sim Temp: {simTemp}°C • Sim Precip: {simPrecip.toFixed(1)}mm • Sim AQI: {simAqi}
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      {/* 3 Intuitive Sliders */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         
-        {/* Slider 1: Temperature Delta */}
-        <div className="card-paper p-5 rounded-2xl border border-slate-200 dark:border-white/10">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center space-x-1.5 font-sans">
-              <Thermometer className="w-4 h-4 text-amber-500" />
-              <span>Temp Anomaly</span>
-            </span>
-            <span className="text-xs font-mono font-extrabold text-amber-600">
-              {tempDelta > 0 ? `+${tempDelta}` : tempDelta}°C
-            </span>
+        {/* Slider 1: Temperature Anomaly */}
+        <div className="card-paper p-5 rounded-2xl border border-slate-200 dark:border-white/10 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center space-x-1.5 font-sans">
+                <Thermometer className="w-4 h-4 text-amber-500" />
+                <span>{isHi ? 'तापमान विसंगति' : 'Temperature Shift'}</span>
+              </span>
+              <span className="text-xs font-mono font-extrabold text-amber-600 dark:text-amber-400">
+                {tempDelta > 0 ? `+${tempDelta}` : tempDelta}°C
+              </span>
+            </div>
+            <input
+              type="range"
+              min="-5"
+              max="8"
+              step="1"
+              value={tempDelta}
+              onChange={(e) => setTempDelta(parseInt(e.target.value))}
+              className="w-full accent-amber-500 cursor-pointer"
+              aria-label="Adjust temperature anomaly"
+            />
           </div>
-          <input
-            type="range"
-            min="-5"
-            max="8"
-            step="1"
-            value={tempDelta}
-            onChange={(e) => setTempDelta(parseInt(e.target.value))}
-            className="w-full accent-amber-500 cursor-pointer"
-          />
-          <div className="flex justify-between text-[10px] text-slate-400 font-mono mt-2">
-            <span>-5°C (Cooler)</span>
-            <span>Simulated: {simTemp}°C</span>
+          <div className="flex justify-between text-[10px] text-slate-400 font-mono mt-3 pt-2 border-t border-slate-100 dark:border-white/5">
+            <span>-5°C (Cooling)</span>
+            <span className="font-bold text-slate-600 dark:text-slate-300">{simTemp}°C</span>
             <span>+8°C (Extreme)</span>
           </div>
         </div>
 
         {/* Slider 2: Precipitation Change */}
-        <div className="card-paper p-5 rounded-2xl border border-slate-200 dark:border-white/10">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center space-x-1.5 font-sans">
-              <CloudRain className="w-4 h-4 text-blue-500" />
-              <span>Rainfall Change</span>
-            </span>
-            <span className="text-xs font-mono font-extrabold text-blue-600">
-              {precipDelta > 0 ? `+${precipDelta}` : precipDelta}%
-            </span>
+        <div className="card-paper p-5 rounded-2xl border border-slate-200 dark:border-white/10 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center space-x-1.5 font-sans">
+                <CloudRain className="w-4 h-4 text-blue-500" />
+                <span>{isHi ? 'वर्षा विचलन' : 'Precipitation Delta'}</span>
+              </span>
+              <span className="text-xs font-mono font-extrabold text-blue-600 dark:text-blue-400">
+                {precipDelta > 0 ? `+${precipDelta}` : precipDelta}%
+              </span>
+            </div>
+            <input
+              type="range"
+              min="-80"
+              max="100"
+              step="10"
+              value={precipDelta}
+              onChange={(e) => setPrecipDelta(parseInt(e.target.value))}
+              className="w-full accent-blue-500 cursor-pointer"
+              aria-label="Adjust precipitation change percentage"
+            />
           </div>
-          <input
-            type="range"
-            min="-80"
-            max="100"
-            step="10"
-            value={precipDelta}
-            onChange={(e) => setPrecipDelta(parseInt(e.target.value))}
-            className="w-full accent-blue-500 cursor-pointer"
-          />
-          <div className="flex justify-between text-[10px] text-slate-400 font-mono mt-2">
+          <div className="flex justify-between text-[10px] text-slate-400 font-mono mt-3 pt-2 border-t border-slate-100 dark:border-white/5">
             <span>-80% (Drought)</span>
-            <span>Simulated: {simPrecip.toFixed(1)}mm</span>
-            <span>+100% (Torrential)</span>
+            <span className="font-bold text-slate-600 dark:text-slate-300">{simPrecip.toFixed(1)} mm</span>
+            <span>+100% (Deluge)</span>
           </div>
         </div>
 
-        {/* Slider 3: AQI Surge */}
-        <div className="card-paper p-5 rounded-2xl border border-slate-200 dark:border-white/10">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center space-x-1.5 font-sans">
-              <Wind className="w-4 h-4 text-sky-500" />
-              <span>AQI Pollution Delta</span>
-            </span>
-            <span className="text-xs font-mono font-extrabold text-sky-600">
-              {aqiDelta > 0 ? `+${aqiDelta}` : aqiDelta} pts
-            </span>
+        {/* Slider 3: AQI Smog Delta */}
+        <div className="card-paper p-5 rounded-2xl border border-slate-200 dark:border-white/10 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center space-x-1.5 font-sans">
+                <Wind className="w-4 h-4 text-emerald-500" />
+                <span>{isHi ? 'वायु प्रदूषण बदलाव' : 'AQI Pollution Shift'}</span>
+              </span>
+              <span className="text-xs font-mono font-extrabold text-emerald-600 dark:text-emerald-400">
+                {aqiDelta > 0 ? `+${aqiDelta}` : aqiDelta} AQI
+              </span>
+            </div>
+            <input
+              type="range"
+              min="-30"
+              max="150"
+              step="10"
+              value={aqiDelta}
+              onChange={(e) => setAqiDelta(parseInt(e.target.value))}
+              className="w-full accent-emerald-500 cursor-pointer"
+              aria-label="Adjust AQI delta"
+            />
           </div>
-          <input
-            type="range"
-            min="-30"
-            max="150"
-            step="10"
-            value={aqiDelta}
-            onChange={(e) => setAqiDelta(parseInt(e.target.value))}
-            className="w-full accent-sky-500 cursor-pointer"
-          />
-          <div className="flex justify-between text-[10px] text-slate-400 font-mono mt-2">
+          <div className="flex justify-between text-[10px] text-slate-400 font-mono mt-3 pt-2 border-t border-slate-100 dark:border-white/5">
             <span>-30 (Cleaner)</span>
-            <span>Simulated: {simAqi} AQI</span>
-            <span>+150 (Smog)</span>
+            <span className="font-bold text-slate-600 dark:text-slate-300">AQI {simAqi}</span>
+            <span>+150 (Smog Surge)</span>
           </div>
         </div>
+
       </div>
 
-      {/* Simulator Result Comparison Box */}
-      <div className="card-paper rounded-3xl p-6 shadow-2xl border border-emerald-900/10 dark:border-white/10 text-center relative">
-        <div className="flex justify-between items-center mb-4">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">
-            Simulated Prakruti Impact
-          </span>
-          <button
-            onClick={handleReset}
-            className="flex items-center space-x-1 text-xs text-emerald-600 hover:text-emerald-700 font-semibold font-mono"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span>Reset Sliders</span>
-          </button>
-        </div>
+      {/* 5 Panch Mahabhuta Sensitivity Impacts */}
+      <div className="card-paper rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200/80 dark:border-white/10">
+        <h3 className="font-serif text-lg font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center space-x-2">
+          <ShieldCheck className="w-5 h-5 text-emerald-600" />
+          <span>{isHi ? 'पंचमहाभूत तत्वों पर संवेदनशीलता प्रभाव' : 'Simulated Panch Mahabhuta Sensitivity Impacts'}</span>
+        </h3>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-12 my-4">
-          <div>
-            <span className="text-xs text-slate-400 font-mono block">Baseline Score</span>
-            <span className="text-4xl font-serif font-extrabold text-slate-800 dark:text-slate-100">
-              {analysis.prakrutiScore}
-            </span>
-          </div>
+        <div className="space-y-4">
+          {elementKeys.map((key) => {
+            const baseScore = analysis.elements[key].score;
+            const simScore = simResult.elements[key].score;
+            const delta = simScore - baseScore;
 
-          <div className="text-2xl font-serif text-slate-300">→</div>
-
-          <div>
-            <span className="text-xs text-slate-400 font-mono block">Simulated Score</span>
-            <span
-              className={`text-4xl font-serif font-extrabold ${
-                scoreDiff < 0 ? 'text-rose-500' : scoreDiff > 0 ? 'text-emerald-600' : 'text-slate-800 dark:text-slate-100'
-              }`}
-            >
-              {simPrakruti}
-            </span>
-          </div>
-        </div>
-
-        {scoreDiff !== 0 && (
-          <div
-            className={`inline-flex items-center space-x-2 px-4 py-1.5 rounded-full text-xs font-bold border mt-2 ${
-              scoreDiff < 0
-                ? 'bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/60 dark:text-rose-300'
-                : 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300'
-            }`}
-          >
-            <AlertTriangle className="w-4 h-4" />
-            <span>
-              Net Shift: {scoreDiff > 0 ? `+${scoreDiff}` : scoreDiff} points under this scenario.
-            </span>
-          </div>
-        )}
-
-        {/* 5-Element Simulated Response Grid */}
-        <div className="grid grid-cols-5 gap-2 sm:gap-3 mt-6 pt-5 border-t border-slate-100 dark:border-white/5">
-          {(['prithvi', 'jal', 'agni', 'vayu', 'akash'] as const).map((key) => {
-            const el = simResult.elements[key];
-            const baseEl = analysis.elements[key];
-            const diff = el.score - baseEl.score;
             return (
-              <div key={key} className="p-2 sm:p-3 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200/50 dark:border-white/5 text-center">
-                <span className="text-[11px] font-devanagari font-bold text-slate-700 dark:text-slate-200 block truncate">
-                  {el.sanskritName}
-                </span>
-                <span className="text-[10px] text-slate-400 font-mono block">
-                  {el.englishName}
-                </span>
-                <div className="text-base sm:text-lg font-serif font-extrabold mt-1" style={{ color: el.color }}>
-                  {el.score}
+              <div key={key} className="p-3.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/50 dark:border-white/5">
+                <div className="flex items-center justify-between mb-2 text-xs">
+                  <div className="flex items-center space-x-2">
+                    <span className="font-devanagari font-bold text-sm text-slate-800 dark:text-slate-100">
+                      {analysis.elements[key].sanskritName}
+                    </span>
+                    <span className="text-slate-400">({analysis.elements[key].englishName})</span>
+                  </div>
+
+                  <div className="flex items-center space-x-3 font-mono">
+                    <span className="text-slate-500">Base: {baseScore}</span>
+                    <ArrowRight className="w-3 h-3 text-slate-400" />
+                    <span className="font-bold text-slate-800 dark:text-slate-100">Sim: {simScore}</span>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                      delta > 0
+                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'
+                        : delta < 0
+                        ? 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300'
+                        : 'bg-slate-200 text-slate-700 dark:bg-white/10 dark:text-slate-300'
+                    }`}>
+                      {delta > 0 ? `+${delta}` : delta}
+                    </span>
+                  </div>
                 </div>
-                <div className={`text-[10px] font-mono font-bold ${diff > 0 ? 'text-emerald-600' : diff < 0 ? 'text-rose-500' : 'text-slate-400'}`}>
-                  {diff > 0 ? `+${diff}` : diff === 0 ? '0' : diff}
+
+                {/* Simulated vs baseline bar */}
+                <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-white/10 overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-300"
+                    style={{
+                      width: `${simScore}%`,
+                      backgroundColor: analysis.elements[key].color,
+                    }}
+                  />
                 </div>
               </div>
             );
           })}
         </div>
       </div>
+
     </div>
   );
 };
