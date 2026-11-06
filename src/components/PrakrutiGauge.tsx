@@ -33,7 +33,7 @@ export const PrakrutiGauge: React.FC<PrakrutiGaugeProps> = ({ score, overallStat
   const strokeDashoffset = circumference - (score / 100) * circumference;
 
   return (
-    <div className="card-paper rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center text-center relative overflow-hidden shadow-xl border border-emerald-900/10 dark:border-white/10">
+    <div className="card-paper rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center text-center relative overflow-hidden shadow-xl border border-emerald-900/10 dark:border-white/10 h-full">
       
       {/* Decorative subtle background aura */}
       <div 

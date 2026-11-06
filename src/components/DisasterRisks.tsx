@@ -20,7 +20,7 @@ export const DisasterRisks: React.FC<DisasterRisksProps> = ({ disasterRisk, risk
       case 'high':
         return 'bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-950/60 dark:text-orange-300';
       case 'critical':
-        return 'bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/60 dark:text-rose-300 animate-pulse';
+        return 'bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/60 dark:text-rose-300 ring-1 ring-rose-400/40 font-bold';
     }
   };
 
@@ -33,7 +33,7 @@ export const DisasterRisks: React.FC<DisasterRisksProps> = ({ disasterRisk, risk
   ];
 
   return (
-    <div className="card-paper rounded-3xl p-6 shadow-xl border border-emerald-900/10 dark:border-white/10 my-6">
+    <div className="card-paper rounded-3xl p-6 shadow-xl border border-emerald-900/10 dark:border-white/10 h-full flex flex-col justify-between">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-serif text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center space-x-2">
           <ShieldAlert className="w-5 h-5 text-amber-500" />

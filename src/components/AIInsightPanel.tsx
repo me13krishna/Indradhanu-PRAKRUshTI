@@ -26,7 +26,7 @@ export const AIInsightPanel: React.FC<AIInsightPanelProps> = ({
   const currentRecs = language === 'hi' && recommendationsHindi ? recommendationsHindi : recommendationsEnglish;
 
   return (
-    <div className="card-paper rounded-3xl p-6 sm:p-8 shadow-xl border border-emerald-900/10 dark:border-white/10 my-6 relative overflow-hidden">
+    <div className="card-paper rounded-3xl p-6 sm:p-8 shadow-xl border border-emerald-900/10 dark:border-white/10 relative overflow-hidden h-full flex flex-col justify-between">
       
       {/* Top Header Row */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-5">

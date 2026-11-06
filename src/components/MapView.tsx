@@ -74,16 +74,16 @@ export const MapView: React.FC<MapViewProps> = ({ location, prakrutiScore }) => 
   }, [location.latitude, location.longitude, location.name, prakrutiScore]);
 
   return (
-    <div className="card-paper rounded-3xl p-4 shadow-xl border border-emerald-900/10 dark:border-white/10 my-6">
-      <div className="flex items-center justify-between mb-3 px-2">
-        <span className="text-xs font-bold uppercase tracking-wider text-slate-500 font-mono">
-          Interactive Geospatial Location Pin
+    <div className="card-paper rounded-3xl p-4 sm:p-6 shadow-xl border border-emerald-900/10 dark:border-white/10 h-full flex flex-col justify-between">
+      <div className="flex items-center justify-between mb-3 px-1">
+        <span className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 font-mono">
+          Geospatial Assessment
         </span>
         <span className="text-xs text-slate-400 font-mono">
-          Lat: {location.latitude.toFixed(4)}, Lng: {location.longitude.toFixed(4)}
+          {location.latitude.toFixed(4)}° N, {location.longitude.toFixed(4)}° E
         </span>
       </div>
-      <div ref={mapRef} className="w-full h-72 sm:h-96 rounded-2xl overflow-hidden shadow-inner" />
+      <div ref={mapRef} className="w-full h-64 sm:h-80 lg:h-full min-h-[280px] rounded-2xl overflow-hidden shadow-inner flex-1" />
     </div>
   );
 };

@@ -20,7 +20,7 @@ export const ForecastStrip: React.FC<ForecastStripProps> = ({ forecastDays }) =>
   };
 
   return (
-    <div className="card-paper rounded-3xl p-6 shadow-xl border border-emerald-900/10 dark:border-white/10 my-6">
+    <div className="card-paper rounded-3xl p-5 sm:p-6 shadow-xl border border-emerald-900/10 dark:border-white/10">
       <h3 className="font-serif text-lg font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center space-x-2">
         <Calendar className="w-5 h-5 text-emerald-600" />
         <span>{t('forecastTitle')}</span>

@@ -102,17 +102,17 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onScrollToSection }) =
           <div className="lg:col-span-5">
             <div className="relative mx-auto max-w-md lg:max-w-none rounded-2xl bg-white dark:bg-charcoal-card p-6 shadow-xl border border-slate-200/80 dark:border-white/10 space-y-5">
               
-              {/* Card Header: Live Sample Indicator */}
+              {/* Card Header: Demonstration Baseline Indicator */}
               <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/5 pb-4">
                 <div>
                   <div className="flex items-center space-x-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
                     <span className="text-xs font-mono font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
-                      {isHi ? 'सक्रिय पर्यावरणीय विश्लेषण' : 'Active Ecological Telemetry'}
+                      {isHi ? 'नमूना पर्यावरणीय विश्लेषण' : 'Demonstration Telemetry Baseline'}
                     </span>
                   </div>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                    {isHi ? 'नई दिल्ली (28.61° N, 77.20° E)' : 'New Delhi, India (28.61° N, 77.20° E)'}
+                    {isHi ? 'नई दिल्ली (28.61° N, 77.20° E) • ईसीएमडब्ल्यूएफ बेसलाइन' : 'New Delhi, India (28.61° N, 77.20° E) • ECMWF IFS Baseline'}
                   </p>
                 </div>
                 <div className="text-right">
@@ -240,3 +240,4 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onScrollToSection }) =
     </section>
   );
 };
+

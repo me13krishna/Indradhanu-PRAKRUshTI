@@ -70,7 +70,7 @@ export const WeatherStrip: React.FC<WeatherStripProps> = ({ weather }) => {
   ];
 
   return (
-    <div className="card-paper rounded-3xl p-6 shadow-xl border border-emerald-900/10 dark:border-white/10 my-6">
+    <div className="card-paper rounded-3xl p-5 sm:p-6 shadow-xl border border-emerald-900/10 dark:border-white/10">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
         <h3 className="font-serif text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center space-x-2">
           <Thermometer className="w-5 h-5 text-emerald-600" />

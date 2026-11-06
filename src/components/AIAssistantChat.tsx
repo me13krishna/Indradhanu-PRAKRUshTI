@@ -107,7 +107,7 @@ export const AIAssistantChat: React.FC<AIAssistantChatProps> = ({ analysis }) =>
   };
 
   return (
-    <div className="card-paper rounded-3xl p-6 sm:p-8 shadow-2xl border border-emerald-900/15 dark:border-white/10 my-8 relative overflow-hidden">
+    <div id="assistant-section" className="card-paper rounded-3xl p-5 sm:p-8 shadow-2xl border border-emerald-900/15 dark:border-white/10 relative overflow-hidden">
       
       {/* Decorative subtle ambient background */}
       <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />

@@ -2,11 +2,12 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { LocationData, PrakrutiAnalysis, MahabhutaElementKey } from './types/prakrushti';
 import { PRESET_LOCATIONS } from './services/geocoding';
 import { getPrakrutiAnalysis } from './services/prakrushtiApi';
-import { LanguageProvider } from './context/LanguageContext';
+import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { RouterProvider, useRouter } from './context/RouterContext';
 import { LandingPage } from './components/landing/LandingPage';
 import { Header } from './components/Header';
 import { LocationSearch } from './components/LocationSearch';
+import { DashboardContextBar } from './components/DashboardContextBar';
 import { PrakrutiGauge } from './components/PrakrutiGauge';
 import { ElementCard } from './components/ElementCard';
 import { WeatherStrip } from './components/WeatherStrip';
@@ -22,10 +23,12 @@ import { WhatIfSimulator } from './components/WhatIfSimulator';
 import { KnowledgeBase } from './components/KnowledgeBase';
 import { AboutSection } from './components/AboutSection';
 import { ReportExportModal } from './components/ReportExportModal';
-import { Loader2, Globe } from 'lucide-react';
+import { Loader2, Globe, ShieldCheck, Activity, Calendar, Bot } from 'lucide-react';
 
 const MainAppContent: React.FC = () => {
   const { currentRoute } = useRouter();
+  const { language } = useLanguage();
+  const isHi = language === 'hi';
 
   // Persistent application state (survives route switches between / and /app)
   const [activeTab, setActiveTab] = useState<string>('dashboard');
@@ -58,6 +61,10 @@ const MainAppContent: React.FC = () => {
     setActiveTab('dashboard');
   };
 
+  const handleJumpToAssistant = () => {
+    chatSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   const elementKeys: MahabhutaElementKey[] = ['prithvi', 'jal', 'agni', 'vayu', 'akash'];
 
   // Route 1: Story-led Landing Page (at /)
@@ -67,7 +74,7 @@ const MainAppContent: React.FC = () => {
 
   // Route 2: Working Environmental Intelligence Platform (at /app)
   return (
-    <div className="min-h-screen flex flex-col font-sans">
+    <div className="min-h-screen flex flex-col font-sans bg-paper dark:bg-charcoal text-slate-800 dark:text-slate-100 transition-colors">
       
       {/* Header Navigation */}
       <div className={showReportExport ? 'no-print' : ''}>
@@ -81,16 +88,16 @@ const MainAppContent: React.FC = () => {
       {/* Main Content Viewport */}
       <main className={`flex-1 pb-16 ${showReportExport ? 'no-print' : ''}`}>
         
-        {/* Global Live Location Ticker Bar */}
+        {/* Global Location & Telemetry Status Bar */}
         <div className="bg-brand-dark/5 dark:bg-white/5 border-b border-slate-200/50 dark:border-white/5 py-2 px-4 text-center">
           <div className="max-w-7xl mx-auto flex items-center justify-center space-x-2 text-xs text-slate-600 dark:text-slate-300 font-mono">
             <Globe className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-            <span>Currently analyzing live data feeds for:</span>
+            <span>{isHi ? 'पर्यावरणीय बुद्धिमत्ता टेलीमेट्री:' : 'Environmental intelligence telemetry for:'}</span>
             <strong className="text-slate-800 dark:text-slate-100">{currentLocation.name}</strong>
           </div>
         </div>
 
-        {/* Tab 1: Panch Mahabhuta Core Dashboard */}
+        {/* Tab 1: Panch Mahabhuta Core Dashboard (7-Section Hierarchy) */}
         {activeTab === 'dashboard' && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 animate-fadeIn">
             
@@ -104,42 +111,73 @@ const MainAppContent: React.FC = () => {
               <div className="p-20 text-center text-slate-500 flex flex-col items-center justify-center space-y-4">
                 <Loader2 className="w-10 h-10 text-emerald-600 animate-spin" />
                 <span className="text-sm font-semibold">
-                  Fetching live climate, AQI & disaster data for {currentLocation.name.split(',')[0]}...
+                  {isHi
+                    ? `${currentLocation.name.split(',')[0]} के लिए पर्यावरणीय टेलीमेट्री लोड हो रही है...`
+                    : `Fetching multi-source telemetry for ${currentLocation.name.split(',')[0]}...`}
+                </span>
+                <span className="text-xs font-mono text-slate-400">
+                  Ingesting ECMWF IFS, Copernicus CAMS & USGS GSN
                 </span>
               </div>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-8 mt-4">
                 
-                {/* Hero Section: Prakruti Gauge + Map Thumbnail */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-                  <div className="lg:col-span-1 flex">
-                    <div className="w-full flex">
-                      <PrakrutiGauge
-                        score={analysis.prakrutiScore}
-                        overallStatus={analysis.overallStatus}
-                        locationName={analysis.location.name}
-                      />
+                {/* 0. Context Bar: Location chip, real source timestamp, model fidelity & report button */}
+                <DashboardContextBar
+                  analysis={analysis}
+                  onJumpToAssistant={handleJumpToAssistant}
+                  onExportReport={() => setShowReportExport(true)}
+                />
+
+                {/* Section 1 & 2: Primary Overview Row (What is condition? Where is it?) */}
+                <section aria-labelledby="section-overview-title">
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                    
+                    {/* 1. Overall Prakruti Assessment Gauge */}
+                    <div className="lg:col-span-5 xl:col-span-4 flex">
+                      <div className="w-full flex">
+                        <PrakrutiGauge
+                          score={analysis.prakrutiScore}
+                          overallStatus={analysis.overallStatus}
+                          locationName={analysis.location.name}
+                        />
+                      </div>
                     </div>
+
+                    {/* 2. Geographic Map & Location Pin */}
+                    <div className="lg:col-span-7 xl:col-span-8 flex">
+                      <div className="w-full flex">
+                        <MapView
+                          location={analysis.location}
+                          prakrutiScore={analysis.prakrutiScore}
+                        />
+                      </div>
+                    </div>
+
+                  </div>
+                </section>
+
+                {/* Section 3: Which environmental dimensions contribute? (5 Mahabhuta Cards) */}
+                <section aria-labelledby="section-elements-title">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-4">
+                    <div>
+                      <h3 id="section-elements-title" className="font-serif text-xl font-bold text-slate-800 dark:text-slate-100 flex items-center space-x-2">
+                        <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                        <span>{isHi ? 'पंचमहाभूत संतुलन निदान' : 'Panch Mahabhuta Elemental Diagnostic'}</span>
+                      </h3>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 font-sans mt-0.5">
+                        {isHi
+                          ? 'उप-योगात्मक p=0.5 सूत्र द्वारा विश्लेषित। विस्तृत माप और प्रॉक्सी देखने हेतु किसी भी कार्ड पर क्लिक करें।'
+                          : 'Sub-additive p=0.5 assessment. Click any element card to inspect sub-metrics, weights, and model proxies.'}
+                      </p>
+                    </div>
+                    <span className="text-xs text-slate-400 font-mono hidden sm:inline">
+                      {isHi ? 'विवरण हेतु क्लिक करें' : 'Tap card for drilldown'}
+                    </span>
                   </div>
 
-                  <div className="lg:col-span-2">
-                    <MapView
-                      location={analysis.location}
-                      prakrutiScore={analysis.prakrutiScore}
-                    />
-                  </div>
-                </div>
-
-                {/* 5 Panch Mahabhuta Element Cards Row */}
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-serif text-xl font-bold text-slate-800 dark:text-slate-100">
-                      Panch Mahabhuta Elemental Framework
-                    </h3>
-                    <span className="text-xs text-slate-400 font-mono">Tap any element card to view breakdown</span>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                  {/* Responsive Grid: 1-col on mobile (360px/390px), 2-col on sm, 3-col on md, 5-col on lg */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                     {elementKeys.map((key) => (
                       <ElementCard
                         key={key}
@@ -149,36 +187,88 @@ const MainAppContent: React.FC = () => {
                       />
                     ))}
                   </div>
-                </div>
+                </section>
 
-                {/* Weather Strip Metrics */}
-                <WeatherStrip weather={analysis.weather} />
+                {/* Section 4: What evidence supports the assessment? (Current Conditions & Proxies) */}
+                <section aria-labelledby="section-conditions-title">
+                  <div className="mb-2">
+                    <h3 id="section-conditions-title" className="font-serif text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center space-x-2">
+                      <Activity className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                      <span>{isHi ? 'वर्तमान पर्यावरणीय अवलोकन एवं मॉडल टेलीमेट्री' : 'Current Environmental Conditions & Model Telemetry'}</span>
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-sans mt-0.5">
+                      {isHi
+                        ? 'विश्व मौसम विज्ञान संगठन (WMO) एवं कॉपरनिकस CAMS वायुमंडलीय मानक'
+                        : 'Surface observations & numerical predictions calibrated against WMO & CAMS standards'}
+                    </p>
+                  </div>
 
-                {/* AI Insights & Actionable Recommendations */}
-                <AIInsightPanel
-                  insightsEnglish={analysis.insights}
-                  insightsHindi={analysis.insightsHindi}
-                  recommendationsEnglish={analysis.recommendations}
-                  recommendationsHindi={analysis.recommendationsHindi}
-                  explainability={analysis.explainability}
-                  onOpenAssistant={() => {
-                    chatSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                />
+                  <WeatherStrip weather={analysis.weather} />
+                </section>
 
-                {/* Conversational Environmental Intelligence Assistant */}
-                <div ref={chatSectionRef}>
+                {/* Section 5: What are the risks? (Explanation & Compound Hazards 2-Column Row) */}
+                <section aria-labelledby="section-risks-title">
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                    
+                    {/* Assessment Explanation & Explainability Attribution */}
+                    <div className="lg:col-span-7 flex">
+                      <div className="w-full flex">
+                        <AIInsightPanel
+                          insightsEnglish={analysis.insights}
+                          insightsHindi={analysis.insightsHindi}
+                          recommendationsEnglish={analysis.recommendations}
+                          recommendationsHindi={analysis.recommendationsHindi}
+                          explainability={analysis.explainability}
+                          onOpenAssistant={handleJumpToAssistant}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Disaster Risks Matrix (Pulsing removed) */}
+                    <div className="lg:col-span-5 flex">
+                      <div className="w-full flex">
+                        <DisasterRisks
+                          disasterRisk={analysis.disasterRisk}
+                          risks={analysis.risks}
+                        />
+                      </div>
+                    </div>
+
+                  </div>
+                </section>
+
+                {/* Section 6: What might happen next? (7-Day Forecast) */}
+                <section aria-labelledby="section-forecast-title">
+                  <div className="mb-2">
+                    <h3 id="section-forecast-title" className="font-serif text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center space-x-2">
+                      <Calendar className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                      <span>{isHi ? '७-दिवसीय पर्यावरणीय प्रक्षेपवक्र पूर्वानुमान' : '7-Day Environmental Trajectory Forecast'}</span>
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-sans mt-0.5">
+                      {isHi ? 'दैनिक तापीय सीमा एवं वर्षा संभावना' : 'Daily temperature thresholds and precipitation probabilities'}
+                    </p>
+                  </div>
+
+                  <ForecastStrip forecastDays={analysis.forecastDays} />
+                </section>
+
+                {/* Section 7: What does it mean? (Contextual Assistant) */}
+                <section aria-labelledby="section-assistant-title" ref={chatSectionRef}>
+                  <div className="mb-2">
+                    <h3 id="section-assistant-title" className="font-serif text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center space-x-2">
+                      <Bot className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                      <span>{isHi ? 'संदर्भगत पर्यावरणीय बुद्धिमत्ता सहायक' : 'Contextual Environmental Intelligence Assistant'}</span>
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-sans mt-0.5">
+                      {isHi
+                        ? 'सत्यापित टेलीमेट्री एवं भौतिक सूत्रों पर आधारित नियम-संचालित विशेषज्ञ प्रणाली'
+                        : 'Deterministic rule-based expert query resolution grounded in verified telemetry'}
+                    </p>
+                  </div>
+
                   <AIAssistantChat analysis={analysis} />
-                </div>
+                </section>
 
-                {/* Disaster Hazard Risk Overview */}
-                <DisasterRisks
-                  disasterRisk={analysis.disasterRisk}
-                  risks={analysis.risks}
-                />
-
-                {/* 7-Day Forecast */}
-                <ForecastStrip forecastDays={analysis.forecastDays} />
               </div>
             )}
           </div>
