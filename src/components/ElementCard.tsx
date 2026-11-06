@@ -90,6 +90,13 @@ export const ElementCard: React.FC<ElementCardProps> = ({ elementKey, element, o
             {element.score}
           </div>
           <span className="text-[10px] text-slate-400 font-mono">/ 100</span>
+          {element.marginalAttribution != null && (
+            <div className={`text-[10px] font-mono font-bold mt-0.5 ${
+              element.marginalAttribution > 0 ? 'text-emerald-600 dark:text-emerald-400' : element.marginalAttribution < 0 ? 'text-rose-500 dark:text-rose-400' : 'text-slate-400'
+            }`}>
+              {element.marginalAttribution > 0 ? `+${element.marginalAttribution}` : element.marginalAttribution} pts
+            </div>
+          )}
         </div>
       </div>
 

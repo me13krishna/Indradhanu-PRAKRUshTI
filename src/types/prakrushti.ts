@@ -16,9 +16,19 @@ export interface MetricItem {
   thresholdText?: string;
 }
 
+export interface SubMetricBreakdown {
+  name: string;
+  score: number; // 0-100
+  weight: number; // e.g. 0.60
+  rawDisplay: string;
+  benchmark: string;
+  citation: string;
+  status: 'good' | 'moderate' | 'poor' | 'critical';
+}
+
 export interface ElementScore {
   score: number; // 0-100
-  status: string; // e.g. "Optimal", "Balanced", "Under Stress", "Severe Stress"
+  status: string; // e.g. "Optimal", "Moderate Balance", "Under Environmental Stress", "Severe Stress / Critical"
   sanskritName: string;
   englishName: string;
   meaning: string;
@@ -26,6 +36,9 @@ export interface ElementScore {
   summary: string;
   color: string; // Hex color code
   keyMetrics: MetricItem[];
+  subMetrics?: SubMetricBreakdown[];
+  marginalAttribution?: number; // Finite-difference delta from composite score
+  attributionRole?: 'Primary Stress Driver' | 'Secondary Stress Contributor' | 'Neutral' | 'Resilience Pillar';
 }
 
 export type DataProvenanceMethod = 
@@ -54,6 +67,9 @@ export interface WeatherData {
   windGustsKph?: number;
   cloudCoverPct?: number;
   aqi: number; // 0 - 500
+  pm2_5?: number; // µg/m³
+  pm10?: number; // µg/m³
+  elevationM?: number; // meters above sea level
   weatherCode: number;
   description: string;
   uvIndex?: number;
@@ -90,6 +106,23 @@ export interface ForecastDay {
   note?: string | null;
 }
 
+export interface SafetyAdvisoryItem {
+  id: string;
+  type: 'seismic' | 'heatwave' | 'wildfire' | 'flood' | 'air';
+  level: 'critical' | 'high' | 'moderate';
+  title: string;
+  message: string;
+  source: string;
+  timestamp?: string;
+}
+
+export interface ExplainabilityData {
+  attributions: Record<MahabhutaElementKey, number>;
+  confidenceScore: number; // 0 - 100
+  primaryStressDriver: MahabhutaElementKey;
+  primaryResiliencePillar: MahabhutaElementKey;
+}
+
 export interface PrakrutiAnalysis {
   location: LocationData;
   capturedAt: string;
@@ -105,6 +138,8 @@ export interface PrakrutiAnalysis {
   weather: WeatherData;
   disasterRisk: HazardRisk;
   risks: DetailedRiskItem[];
+  safetyAdvisories?: SafetyAdvisoryItem[];
+  explainability?: ExplainabilityData;
   insights: string;
   insightsHindi?: string;
   recommendations: string[];

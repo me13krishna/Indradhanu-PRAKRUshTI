@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import type { PrakrutiAnalysis } from '../types/prakrushti';
+import type { PrakrutiAnalysis, WeatherData, HazardRisk } from '../types/prakrushti';
 import { Sparkles, Thermometer, CloudRain, Wind, RefreshCw, AlertTriangle } from 'lucide-react';
+import { computeElementScores } from '../services/scoringEngine';
 
 interface WhatIfSimulatorProps {
   analysis: PrakrutiAnalysis;
@@ -12,19 +13,40 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({ analysis }) =>
   const [precipDelta, setPrecipDelta] = useState<number>(0); // -80% to +100%
   const [aqiDelta, setAqiDelta] = useState<number>(0); // -30 to +150 AQI
 
-  // Calculate simulated scores
+  // Calculate simulated parameters
   const simTemp = analysis.weather.temperatureC + tempDelta;
-  const simPrecip = Math.max(0, analysis.weather.precipitationMm * (1 + precipDelta / 100));
+  const basePrecip = analysis.weather.precipitationMm;
+  const simPrecip = Math.max(0, basePrecip > 0 
+    ? basePrecip * (1 + precipDelta / 100) 
+    : (precipDelta > 0 ? (precipDelta / 10) : 0));
   const simAqi = Math.max(0, Math.min(500, analysis.weather.aqi + aqiDelta));
 
-  // Compute simulated element scores
-  const agniImpact = Math.round(Math.max(0, Math.min(100, analysis.elements.agni.score - tempDelta * 4)));
-  const jalImpact = Math.round(Math.max(0, Math.min(100, analysis.elements.jal.score + precipDelta * 0.2)));
-  const vayuImpact = Math.round(Math.max(0, Math.min(100, analysis.elements.vayu.score - aqiDelta * 0.3)));
-  const prithviImpact = Math.round(Math.max(0, Math.min(100, analysis.elements.prithvi.score - tempDelta * 2 + precipDelta * 0.1)));
-  const akashImpact = Math.round(Math.max(0, Math.min(100, analysis.elements.akash.score - Math.abs(tempDelta) * 2)));
+  // Construct synthetic weather object grounded in physical response
+  const currentTheta = analysis.weather.soilMoistureM3M3 ?? ((analysis.weather.soilMoisturePct ?? 45) / 100 * 0.45);
+  const simulatedTheta = Math.max(0.02, Math.min(0.45, Number((currentTheta + (precipDelta / 100) * 0.05 - (tempDelta * 0.005)).toFixed(3))));
 
-  const simPrakruti = Math.round((agniImpact + jalImpact + vayuImpact + prithviImpact + akashImpact) / 5);
+  const simWeather: WeatherData = {
+    ...analysis.weather,
+    temperatureC: simTemp,
+    precipitationMm: Number(simPrecip.toFixed(1)),
+    aqi: simAqi,
+    pm2_5: undefined, // allow EPA inversion from simulated AQI
+    soilTemperatureC: (analysis.weather.soilTemperatureC ?? analysis.weather.temperatureC) + tempDelta,
+    soilMoistureM3M3: simulatedTheta,
+    soilMoisturePct: Math.round((simulatedTheta / 0.45) * 100),
+    soilMoistureProvenance: 'USER_SIMULATED',
+  };
+
+  const simHazards: HazardRisk = {
+    ...analysis.disasterRisk,
+    heat: simTemp >= 40 ? 'critical' : simTemp >= 34 ? 'high' : simTemp >= 29 ? 'moderate' : 'low',
+    flood: simPrecip >= 50 ? 'critical' : simPrecip >= 20 ? 'high' : simPrecip >= 5 ? 'moderate' : 'low',
+    fire: simTemp > 30 && analysis.weather.humidityPct < 30 ? 'critical' : analysis.disasterRisk.fire,
+  };
+
+  // Re-run the scientific scoring engine
+  const simResult = computeElementScores(simWeather, simHazards);
+  const simPrakruti = simResult.prakrutiScore;
   const scoreDiff = simPrakruti - analysis.prakrutiScore;
 
   const handleReset = () => {
@@ -186,6 +208,31 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({ analysis }) =>
             </span>
           </div>
         )}
+
+        {/* 5-Element Simulated Response Grid */}
+        <div className="grid grid-cols-5 gap-2 sm:gap-3 mt-6 pt-5 border-t border-slate-100 dark:border-white/5">
+          {(['prithvi', 'jal', 'agni', 'vayu', 'akash'] as const).map((key) => {
+            const el = simResult.elements[key];
+            const baseEl = analysis.elements[key];
+            const diff = el.score - baseEl.score;
+            return (
+              <div key={key} className="p-2 sm:p-3 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200/50 dark:border-white/5 text-center">
+                <span className="text-[11px] font-devanagari font-bold text-slate-700 dark:text-slate-200 block truncate">
+                  {el.sanskritName}
+                </span>
+                <span className="text-[10px] text-slate-400 font-mono block">
+                  {el.englishName}
+                </span>
+                <div className="text-base sm:text-lg font-serif font-extrabold mt-1" style={{ color: el.color }}>
+                  {el.score}
+                </div>
+                <div className={`text-[10px] font-mono font-bold ${diff > 0 ? 'text-emerald-600' : diff < 0 ? 'text-rose-500' : 'text-slate-400'}`}>
+                  {diff > 0 ? `+${diff}` : diff === 0 ? '0' : diff}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

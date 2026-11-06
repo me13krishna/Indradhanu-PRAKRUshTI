@@ -14,7 +14,7 @@ export async function getPrakrutiAnalysis(location: LocationData): Promise<Prakr
   const { disasterRisk, risks } = await fetchHazardData(latitude, longitude, weather);
 
   // 3. Compute Panch Mahabhuta scores & composite Prakruti Score
-  const { elements, prakrutiScore, overallStatus } = computeElementScores(weather, disasterRisk);
+  const { elements, prakrutiScore, overallStatus, safetyAdvisories, explainability } = computeElementScores(weather, disasterRisk);
 
   // 4. Generate AI Insights grounded in numbers
   const { insightsEnglish, insightsHindi, recommendationsEnglish, recommendationsHindi } = generateAIInsights(
@@ -34,6 +34,8 @@ export async function getPrakrutiAnalysis(location: LocationData): Promise<Prakr
     weather,
     disasterRisk,
     risks,
+    safetyAdvisories,
+    explainability,
     insights: insightsEnglish,
     insightsHindi: insightsHindi,
     recommendations: recommendationsEnglish,
