@@ -22,7 +22,9 @@ export async function getPrakrutiAnalysis(location: LocationData): Promise<Prakr
     prakrutiScore,
     elements,
     weather,
-    disasterRisk
+    disasterRisk,
+    explainability,
+    safetyAdvisories
   );
 
   return {

@@ -1,12 +1,15 @@
 import React from 'react';
-import { Sparkles, CheckCircle2, ShieldCheck, Languages } from 'lucide-react';
+import { Sparkles, CheckCircle2, ShieldCheck, Languages, Activity, MessageSquare } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import type { ExplainabilityData } from '../types/prakrushti';
 
 interface AIInsightPanelProps {
   insightsEnglish: string;
   insightsHindi?: string;
   recommendationsEnglish: string[];
   recommendationsHindi?: string[];
+  explainability?: ExplainabilityData;
+  onOpenAssistant?: () => void;
 }
 
 export const AIInsightPanel: React.FC<AIInsightPanelProps> = ({
@@ -14,6 +17,8 @@ export const AIInsightPanel: React.FC<AIInsightPanelProps> = ({
   insightsHindi,
   recommendationsEnglish,
   recommendationsHindi,
+  explainability,
+  onOpenAssistant,
 }) => {
   const { language, setLanguage, t } = useLanguage();
 
@@ -24,31 +29,74 @@ export const AIInsightPanel: React.FC<AIInsightPanelProps> = ({
     <div className="card-paper rounded-3xl p-6 sm:p-8 shadow-xl border border-emerald-900/10 dark:border-white/10 my-6 relative overflow-hidden">
       
       {/* Top Header Row */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-5">
         <div className="flex items-center space-x-2.5">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white shadow-md">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white shadow-md">
             <Sparkles className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-serif text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center space-x-2">
-              <span>{t('aiInsights')}</span>
-            </h3>
-            <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-mono flex items-center space-x-1">
+            <div className="flex items-center space-x-2">
+              <h3 className="font-serif text-lg font-bold text-slate-800 dark:text-slate-100">
+                {t('aiInsights')}
+              </h3>
+              {explainability && (
+                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/50">
+                  {explainability.confidenceScore}% Confidence
+                </span>
+              )}
+            </div>
+            <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-mono flex items-center space-x-1 mt-0.5">
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Grounded in Real Metrics (No invented numbers)</span>
+              <span>Grounded in Real Metrics (ECMWF IFS, CAMS & USGS)</span>
             </span>
           </div>
         </div>
 
-        {/* Hindi / English Toggle for AI text */}
-        <button
-          onClick={() => setLanguage(language === 'en' ? 'hi' : 'en')}
-          className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40 hover:bg-emerald-100 transition"
-        >
-          <Languages className="w-3.5 h-3.5" />
-          <span>{language === 'en' ? 'हिंदी में पढ़ें' : 'Read in English'}</span>
-        </button>
+        {/* Action buttons */}
+        <div className="flex items-center space-x-2">
+          {onOpenAssistant && (
+            <button
+              onClick={onOpenAssistant}
+              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-dark hover:bg-brand-light text-white transition shadow-sm"
+            >
+              <MessageSquare className="w-3.5 h-3.5" />
+              <span>{language === 'hi' ? 'AI से पूछें' : 'Ask AI'}</span>
+            </button>
+          )}
+
+          {/* Hindi / English Toggle for AI text */}
+          <button
+            onClick={() => setLanguage(language === 'en' ? 'hi' : 'en')}
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40 hover:bg-emerald-100 transition"
+          >
+            <Languages className="w-3.5 h-3.5" />
+            <span>{language === 'en' ? 'हिंदी में पढ़ें' : 'Read in English'}</span>
+          </button>
+        </div>
       </div>
+
+      {/* Explainability Tags Strip */}
+      {explainability && (
+        <div className="flex flex-wrap items-center gap-2 mb-4 p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/5 text-xs font-mono">
+          <div className="flex items-center space-x-1.5">
+            <Activity className="w-3.5 h-3.5 text-rose-500" />
+            <span className="text-slate-400">Primary Stress Driver:</span>
+            <span className="font-bold text-rose-600 dark:text-rose-400 uppercase">
+              {explainability.primaryStressDriver} ({explainability.attributions[explainability.primaryStressDriver]} pts)
+            </span>
+          </div>
+
+          <span className="text-slate-300 dark:text-white/20 hidden sm:inline">•</span>
+
+          <div className="flex items-center space-x-1.5">
+            <Activity className="w-3.5 h-3.5 text-emerald-500" />
+            <span className="text-slate-400">Resilience Pillar:</span>
+            <span className="font-bold text-emerald-600 dark:text-emerald-400 uppercase">
+              {explainability.primaryResiliencePillar} (+{explainability.attributions[explainability.primaryResiliencePillar]} pts)
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* AI Plain Language Diagnostic Paragraph */}
       <div className="p-4 sm:p-5 rounded-2xl bg-white/80 dark:bg-white/5 border border-slate-200/60 dark:border-white/5 mb-6">

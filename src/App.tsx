@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { LocationData, PrakrutiAnalysis, MahabhutaElementKey } from './types/prakrushti';
 import { PRESET_LOCATIONS } from './services/geocoding';
 import { getPrakrutiAnalysis } from './services/prakrushtiApi';
@@ -10,6 +10,7 @@ import { ElementCard } from './components/ElementCard';
 import { WeatherStrip } from './components/WeatherStrip';
 import { DisasterRisks } from './components/DisasterRisks';
 import { AIInsightPanel } from './components/AIInsightPanel';
+import { AIAssistantChat } from './components/AIAssistantChat';
 import { ForecastStrip } from './components/ForecastStrip';
 import { MapView } from './components/MapView';
 import { ElementDetailModal } from './components/ElementDetailModal';
@@ -30,6 +31,7 @@ const MainAppContent: React.FC = () => {
 
   const [selectedElementKey, setSelectedElementKey] = useState<MahabhutaElementKey | null>(null);
   const [showReportExport, setShowReportExport] = useState<boolean>(false);
+  const chatSectionRef = useRef<HTMLDivElement>(null);
 
   const loadAnalysis = async (loc: LocationData) => {
     setLoading(true);
@@ -148,7 +150,16 @@ const MainAppContent: React.FC = () => {
                   insightsHindi={analysis.insightsHindi}
                   recommendationsEnglish={analysis.recommendations}
                   recommendationsHindi={analysis.recommendationsHindi}
+                  explainability={analysis.explainability}
+                  onOpenAssistant={() => {
+                    chatSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+                  }}
                 />
+
+                {/* Conversational Environmental Intelligence Assistant */}
+                <div ref={chatSectionRef}>
+                  <AIAssistantChat analysis={analysis} />
+                </div>
 
                 {/* Disaster Hazard Risk Overview */}
                 <DisasterRisks

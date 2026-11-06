@@ -152,3 +152,4 @@ With Phase 2B successfully implemented and verified:
 1. Stage and commit Phase 2A and Phase 2B deliverables to git.
 2. Push commit to remote `origin main`.
 3. Proceed to **Phase 3: AI Insights Generator & Conversational Environmental Assistant** (data-grounded RAG with lightweight Python server or client-side fallback).
+
