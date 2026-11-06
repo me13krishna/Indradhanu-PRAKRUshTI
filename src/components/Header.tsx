@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Globe, Sun, Moon, BarChart2, MapPin, Sliders, BookOpen, Info, FileText } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { useRouter } from '../context/RouterContext';
 
 interface HeaderProps {
   activeTab: string;
@@ -10,6 +11,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, onExportReport }) => {
   const { language, setLanguage, t } = useLanguage();
+  const { navigate } = useRouter();
   const [darkMode, setDarkMode] = useState<boolean>(false);
 
   useEffect(() => {
@@ -68,8 +70,18 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, onExpor
           </div>
 
           {/* Navigation Controls & Actions */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2 sm:space-x-3">
             
+            {/* Back to Story / Landing Link */}
+            <button
+              onClick={() => navigate('/')}
+              className="flex items-center space-x-1 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-950/5 dark:bg-white/10 hover:bg-emerald-950/10 dark:hover:bg-white/20 transition text-slate-700 dark:text-slate-200 border border-slate-300/50 dark:border-white/10"
+              title="Return to Story Overview"
+            >
+              <BookOpen className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span className="hidden sm:inline">Story</span>
+            </button>
+
             {/* Language Switcher */}
             <button
               onClick={() => setLanguage(language === 'en' ? 'hi' : 'en')}

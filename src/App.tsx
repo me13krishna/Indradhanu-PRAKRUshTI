@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { LocationData, PrakrutiAnalysis, MahabhutaElementKey } from './types/prakrushti';
 import { PRESET_LOCATIONS } from './services/geocoding';
 import { getPrakrutiAnalysis } from './services/prakrushtiApi';
 import { LanguageProvider } from './context/LanguageContext';
+import { RouterProvider, useRouter } from './context/RouterContext';
+import { LandingPage } from './components/landing/LandingPage';
 import { Header } from './components/Header';
 import { LocationSearch } from './components/LocationSearch';
 import { PrakrutiGauge } from './components/PrakrutiGauge';
@@ -23,7 +25,9 @@ import { ReportExportModal } from './components/ReportExportModal';
 import { Loader2, Globe } from 'lucide-react';
 
 const MainAppContent: React.FC = () => {
+  const { currentRoute } = useRouter();
 
+  // Persistent application state (survives route switches between / and /app)
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [currentLocation, setCurrentLocation] = useState<LocationData>(PRESET_LOCATIONS[0]); // Default Pune
   const [analysis, setAnalysis] = useState<PrakrutiAnalysis | null>(null);
@@ -33,7 +37,7 @@ const MainAppContent: React.FC = () => {
   const [showReportExport, setShowReportExport] = useState<boolean>(false);
   const chatSectionRef = useRef<HTMLDivElement>(null);
 
-  const loadAnalysis = async (loc: LocationData) => {
+  const loadAnalysis = useCallback(async (loc: LocationData) => {
     setLoading(true);
     try {
       const data = await getPrakrutiAnalysis(loc);
@@ -43,11 +47,11 @@ const MainAppContent: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadAnalysis(currentLocation);
-  }, [currentLocation]);
+  }, [currentLocation, loadAnalysis]);
 
   const handleSelectLocation = (loc: LocationData) => {
     setCurrentLocation(loc);
@@ -56,6 +60,12 @@ const MainAppContent: React.FC = () => {
 
   const elementKeys: MahabhutaElementKey[] = ['prithvi', 'jal', 'agni', 'vayu', 'akash'];
 
+  // Route 1: Story-led Landing Page (at /)
+  if (currentRoute === '/') {
+    return <LandingPage />;
+  }
+
+  // Route 2: Working Environmental Intelligence Platform (at /app)
   return (
     <div className="min-h-screen flex flex-col font-sans">
       
@@ -236,7 +246,9 @@ const MainAppContent: React.FC = () => {
 export const App: React.FC = () => {
   return (
     <LanguageProvider>
-      <MainAppContent />
+      <RouterProvider>
+        <MainAppContent />
+      </RouterProvider>
     </LanguageProvider>
   );
 };
