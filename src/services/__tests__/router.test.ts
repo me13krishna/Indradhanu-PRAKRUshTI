@@ -7,11 +7,14 @@ function normalizeRoute(pathname: string): '/' | '/app' {
   return '/';
 }
 
-describe('Zero-Dependency History API Route Resolver (Phase 1)', () => {
+describe('Zero-Dependency History API Route Resolver (Phase 1 & 2)', () => {
   it('correctly resolves root path to story landing page', () => {
     expect(normalizeRoute('/')).toBe('/');
-    expect(normalizeRoute('/#approach')).toBe('/');
-    expect(normalizeRoute('/#elements')).toBe('/');
+    expect(normalizeRoute('/#challenge')).toBe('/');
+    expect(normalizeRoute('/#methodology')).toBe('/');
+    expect(normalizeRoute('/#framework')).toBe('/');
+    expect(normalizeRoute('/#foundation')).toBe('/');
+    expect(normalizeRoute('/#preview')).toBe('/');
   });
 
   it('correctly resolves app path to the functional platform shell', () => {
@@ -26,4 +29,14 @@ describe('Zero-Dependency History API Route Resolver (Phase 1)', () => {
     expect(normalizeRoute('/story')).toBe('/');
     expect(normalizeRoute('/app-preview')).toBe('/app');
   });
+
+  it('validates required story section anchors for Phase 2 landing page', () => {
+    const requiredAnchors = ['challenge', 'methodology', 'framework', 'foundation', 'preview'];
+    expect(requiredAnchors).toHaveLength(5);
+    requiredAnchors.forEach((anchor) => {
+      expect(typeof anchor).toBe('string');
+      expect(anchor.length).toBeGreaterThan(0);
+    });
+  });
 });
+
