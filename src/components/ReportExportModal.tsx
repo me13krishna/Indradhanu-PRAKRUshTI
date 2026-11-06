@@ -13,13 +13,14 @@ export const ReportExportModal: React.FC<ReportExportModalProps> = ({ analysis, 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fadeIn no-print">
-      <div className="bg-white dark:bg-charcoal w-full max-w-3xl rounded-3xl p-6 sm:p-10 shadow-2xl border border-slate-200 dark:border-white/10 relative max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fadeIn print-dossier-modal">
+      <div className="bg-white dark:bg-charcoal w-full max-w-3xl rounded-3xl p-6 sm:p-10 shadow-2xl border border-slate-200 dark:border-white/10 relative max-h-[90vh] overflow-y-auto print-dossier-card">
         
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 p-2 rounded-full bg-slate-100 dark:bg-white/10 text-slate-500 hover:bg-slate-200 transition"
+          className="absolute top-6 right-6 p-2 rounded-full bg-slate-100 dark:bg-white/10 text-slate-500 hover:bg-slate-200 transition no-print"
+          aria-label="Close export modal"
         >
           <X className="w-5 h-5" />
         </button>
@@ -45,7 +46,8 @@ export const ReportExportModal: React.FC<ReportExportModalProps> = ({ analysis, 
 
           <button
             onClick={handlePrint}
-            className="flex items-center space-x-2 px-5 py-2.5 rounded-xl font-bold text-xs bg-brand-dark hover:bg-brand-light text-white transition shadow-lg active:scale-95"
+            className="flex items-center space-x-2 px-5 py-2.5 rounded-xl font-bold text-xs bg-brand-dark hover:bg-brand-light text-white transition shadow-lg active:scale-95 no-print"
+            aria-label="Print or export report to PDF"
           >
             <Printer className="w-4 h-4" />
             <span>Print / Export PDF</span>

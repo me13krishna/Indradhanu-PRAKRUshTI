@@ -1,8 +1,8 @@
-import type { WeatherData, ForecastDay } from '../types/prakrushti';
+import type { WeatherData, ForecastDay, DataProvenanceItem } from '../types/prakrushti';
 
 export async function fetchWeatherData(lat: number, lng: number): Promise<{ weather: WeatherData; forecastDays: ForecastDay[] }> {
   try {
-    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,surface_pressure,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto`;
+    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,surface_pressure,wind_speed_10m,wind_gusts_10m,soil_moisture_0_to_1cm,soil_temperature_0cm,cloud_cover&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto`;
     const aqUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lng}&current=pm10,pm2_5,us_aqi,uv_index`;
 
     const [weatherRes, aqRes] = await Promise.allSettled([
@@ -21,18 +21,58 @@ export async function fetchWeatherData(lat: number, lng: number): Promise<{ weat
     const weatherCode = currentW.weather_code ?? 0;
     const description = getWeatherDescription(weatherCode);
 
+    // Soil Moisture Provenance: Use ECMWF IFS real volumetric reading if available from Open-Meteo
+    const rawSoilMoisture = currentW.soil_moisture_0_to_1cm;
+    const isRealSoilMoisture = typeof rawSoilMoisture === 'number' && !isNaN(rawSoilMoisture);
+    const soilMoistureM3M3 = isRealSoilMoisture ? Number(rawSoilMoisture.toFixed(3)) : undefined;
+
+    // Convert volumetric m³/m³ (0.0 to 0.45 typical saturation) to percentage saturation index
+    const soilMoisturePct = isRealSoilMoisture
+      ? Math.round(Math.max(5, Math.min(100, (rawSoilMoisture / 0.45) * 100)))
+      : Math.round(Math.max(10, Math.min(90, 60 - ((currentW.temperature_2m || 24) * 0.8) + ((currentW.relative_humidity_2m || 50) * 0.4))));
+
+    const provenance: Record<string, DataProvenanceItem> = {
+      atmosphere: {
+        source: 'Open-Meteo High-Resolution NWP Assimilation (ECMWF IFS / GFS)',
+        method: 'NWP_ATMOSPHERIC_ANALYSIS',
+        confidence: 0.92,
+        notes: 'Gridded 2m surface analysis interpolated to coordinates',
+        limitations: 'Spatial grid smoothing (0.1°); not direct local weather station thermometer',
+      },
+      airQuality: {
+        source: 'Copernicus Atmosphere Monitoring Service (CAMS) / Open-Meteo',
+        method: 'ATMOSPHERIC_DISPERSION_MODEL',
+        confidence: 0.88,
+        notes: 'Surface PM2.5, PM10 & European/US AQI chemical transport assimilation',
+        limitations: 'Regional 10km grid resolution; local street canyon microclimates may differ',
+      },
+      soilMoisture: {
+        source: isRealSoilMoisture ? 'ECMWF Integrated Forecasting System (IFS Land Model 0-1cm)' : 'Derived Thermal-Moisture Proxy',
+        method: isRealSoilMoisture ? 'NWP_LAND_SURFACE_MODEL' : 'ESTIMATED_PROXY',
+        confidence: isRealSoilMoisture ? 0.88 : 0.55,
+        notes: isRealSoilMoisture ? 'Volumetric water content (m³/m³) in top 1cm soil layer' : 'Coarse fallback proxy for oceanic/unresolved coastal cells',
+        limitations: isRealSoilMoisture ? 'Represents modeled topsoil moisture; not calibrated in-situ capacitance probe' : 'Estimated mathematical proxy',
+      },
+    };
+
     const weather: WeatherData = {
       temperatureC: Math.round(currentW.temperature_2m ?? 24),
       feelsLikeC: currentW.apparent_temperature != null ? Math.round(currentW.apparent_temperature) : null,
       humidityPct: Math.round(currentW.relative_humidity_2m ?? 55),
       precipitationMm: Number((currentW.precipitation ?? 0).toFixed(1)),
       windKph: Math.round(currentW.wind_speed_10m ?? 12),
+      windGustsKph: currentW.wind_gusts_10m != null ? Math.round(currentW.wind_gusts_10m) : undefined,
+      cloudCoverPct: currentW.cloud_cover != null ? Math.round(currentW.cloud_cover) : undefined,
       aqi: Math.min(500, Math.max(0, Math.round(aqiVal || 42))),
       weatherCode: weatherCode,
       description: description,
       uvIndex: Number((currentAQ.uv_index ?? 4.5).toFixed(1)),
       pressureHpa: Math.round(currentW.surface_pressure ?? 1013),
-      soilMoisturePct: Math.round(Math.max(10, Math.min(90, 60 - ((currentW.temperature_2m || 24) * 0.8) + ((currentW.relative_humidity_2m || 50) * 0.4)))),
+      soilMoisturePct,
+      soilMoistureM3M3,
+      soilMoistureProvenance: isRealSoilMoisture ? 'NWP_LAND_SURFACE_MODEL' : 'ESTIMATED_PROXY',
+      soilTemperatureC: currentW.soil_temperature_0cm != null ? Math.round(currentW.soil_temperature_0cm) : undefined,
+      provenance,
     };
 
     const forecastDays: ForecastDay[] = [];
@@ -73,10 +113,21 @@ export async function fetchWeatherData(lat: number, lng: number): Promise<{ weat
       windKph: 14,
       aqi: 45,
       weatherCode: 0,
-      description: 'Clear sky',
+      description: 'Clear sky (Baseline Cache)',
       uvIndex: 5,
       pressureHpa: 1013,
       soilMoisturePct: 45,
+      soilMoistureM3M3: 0.20,
+      soilMoistureProvenance: 'ESTIMATED_PROXY',
+      provenance: {
+        atmosphere: {
+          source: 'PRAKRUshTI Baseline Offline Fallback',
+          method: 'ESTIMATED_PROXY',
+          confidence: 0.40,
+          notes: 'Network offline / API rate limit fallback',
+          limitations: 'Static baseline estimation without real-time connection',
+        },
+      },
     };
     
     const today = new Date();

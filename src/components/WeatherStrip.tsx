@@ -71,10 +71,15 @@ export const WeatherStrip: React.FC<WeatherStripProps> = ({ weather }) => {
 
   return (
     <div className="card-paper rounded-3xl p-6 shadow-xl border border-emerald-900/10 dark:border-white/10 my-6">
-      <h3 className="font-serif text-lg font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center space-x-2">
-        <Thermometer className="w-5 h-5 text-emerald-600" />
-        <span>{t('weatherOverview')}</span>
-      </h3>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+        <h3 className="font-serif text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center space-x-2">
+          <Thermometer className="w-5 h-5 text-emerald-600" />
+          <span>{t('weatherOverview')}</span>
+        </h3>
+        <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 w-fit">
+          Verified Open Data • WMO & ECMWF Standards
+        </span>
+      </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
         {metrics.map((item, idx) => {

@@ -58,14 +58,16 @@ const MainAppContent: React.FC = () => {
     <div className="min-h-screen flex flex-col font-sans">
       
       {/* Header Navigation */}
-      <Header
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        onExportReport={() => setShowReportExport(true)}
-      />
+      <div className={showReportExport ? 'no-print' : ''}>
+        <Header
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          onExportReport={() => setShowReportExport(true)}
+        />
+      </div>
 
       {/* Main Content Viewport */}
-      <main className="flex-1 pb-16">
+      <main className={`flex-1 pb-16 ${showReportExport ? 'no-print' : ''}`}>
         
         {/* Global Live Location Ticker Bar */}
         <div className="bg-brand-dark/5 dark:bg-white/5 border-b border-slate-200/50 dark:border-white/5 py-2 px-4 text-center">
@@ -188,7 +190,7 @@ const MainAppContent: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-paper border-t border-slate-200/60 dark:bg-charcoal dark:border-white/10 py-6 px-4 text-center text-xs text-slate-500 dark:text-slate-400 font-sans">
+      <footer className={`bg-paper border-t border-slate-200/60 dark:bg-charcoal dark:border-white/10 py-6 px-4 text-center text-xs text-slate-500 dark:text-slate-400 font-sans ${showReportExport ? 'no-print' : ''}`}>
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center space-x-2">
             <span className="font-serif font-bold text-slate-800 dark:text-slate-200">PRAKRUshTI</span>

@@ -28,18 +28,41 @@ export interface ElementScore {
   keyMetrics: MetricItem[];
 }
 
+export type DataProvenanceMethod = 
+  | 'NWP_LAND_SURFACE_MODEL'      // Numerical Weather Prediction Land Surface Model (e.g. ECMWF IFS 0-1cm)
+  | 'NWP_ATMOSPHERIC_ANALYSIS'    // NWP Surface Gridded Analysis (e.g. Open-Meteo 2m temperature/pressure)
+  | 'ATMOSPHERIC_DISPERSION_MODEL'// Chemical Transport Model (e.g. CAMS / Copernicus PM2.5 / AQI)
+  | 'IN_SITU_SEISMIC_NETWORK'     // USGS Global Seismographic Network physical instruments
+  | 'STATISTICAL_FORECAST'        // Multi-day deterministic forecast outlook
+  | 'ESTIMATED_PROXY'             // Missing cell/ocean fallback estimate
+  | 'USER_SIMULATED';             // Hypothetical What-If scenario parameter shift
+
+export interface DataProvenanceItem {
+  source: string;
+  method: DataProvenanceMethod;
+  confidence: number; // 0.0 - 1.0
+  notes?: string;
+  limitations?: string;
+}
+
 export interface WeatherData {
   temperatureC: number;
   feelsLikeC: number | null;
   humidityPct: number;
   precipitationMm: number;
   windKph: number;
+  windGustsKph?: number;
+  cloudCoverPct?: number;
   aqi: number; // 0 - 500
   weatherCode: number;
   description: string;
   uvIndex?: number;
   pressureHpa?: number;
-  soilMoisturePct?: number;
+  soilMoisturePct?: number; // 0 - 100% saturation index
+  soilMoistureM3M3?: number; // Real volumetric m³/m³ (0.00 - 0.50)
+  soilMoistureProvenance: DataProvenanceMethod;
+  soilTemperatureC?: number;
+  provenance: Record<string, DataProvenanceItem>;
 }
 
 export interface HazardRisk {

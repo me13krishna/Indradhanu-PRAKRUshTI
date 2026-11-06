@@ -16,6 +16,8 @@ export const LocationSearch: React.FC<LocationSearchProps> = ({ currentLocation,
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -24,30 +26,54 @@ export const LocationSearch: React.FC<LocationSearchProps> = ({ currentLocation,
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+      if (abortControllerRef.current) abortControllerRef.current.abort();
+    };
   }, []);
 
-  const handleSearch = async (val: string) => {
+  const handleInputChange = (val: string) => {
     setQuery(val);
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
     if (val.trim().length < 2) {
       setResults([]);
       setIsOpen(false);
+      setLoading(false);
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
       return;
     }
 
     setLoading(true);
     setIsOpen(true);
-    try {
-      const res = await searchLocations(val);
-      setResults(res);
-    } catch (e) {
-      console.warn(e);
-    } finally {
-      setLoading(false);
-    }
+
+    debounceTimerRef.current = setTimeout(async () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      abortControllerRef.current = new AbortController();
+
+      try {
+        const res = await searchLocations(val, abortControllerRef.current.signal);
+        setResults(res);
+      } catch (e: any) {
+        if (e?.name !== 'AbortError') {
+          console.warn('Location query error:', e);
+        }
+      } finally {
+        setLoading(false);
+      }
+    }, 350);
   };
 
   const handleSelect = (loc: LocationData) => {
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    if (abortControllerRef.current) abortControllerRef.current.abort();
     onSelectLocation(loc);
     setQuery('');
     setIsOpen(false);
@@ -86,7 +112,7 @@ export const LocationSearch: React.FC<LocationSearchProps> = ({ currentLocation,
           <input
             type="text"
             value={query}
-            onChange={(e) => handleSearch(e.target.value)}
+            onChange={(e) => handleInputChange(e.target.value)}
             onFocus={() => query.length >= 2 && setIsOpen(true)}
             placeholder={t('searchPlaceholder')}
             className="w-full py-4 pl-3 pr-24 text-sm sm:text-base font-sans bg-transparent text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none"

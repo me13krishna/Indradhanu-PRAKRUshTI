@@ -45,7 +45,11 @@ export function computeElementScores(weather: WeatherData, hazardRisk: HazardRis
       : 'Soil moisture imbalances or regional terrain stress detected on land systems.',
     color: '#C97B4A',
     keyMetrics: [
-      { label: 'Soil Moisture Proxy', value: `${weather.soilMoisturePct ?? 45}%`, status: soilScore >= 60 ? 'good' : 'moderate' },
+      {
+        label: weather.soilMoistureProvenance === 'NWP_LAND_SURFACE_MODEL' ? 'Soil Water (ECMWF IFS)' : 'Soil Moisture (Proxy)',
+        value: weather.soilMoistureM3M3 != null ? `${weather.soilMoistureM3M3} m³/m³` : `${weather.soilMoisturePct ?? 45}%`,
+        status: soilScore >= 60 ? 'good' : 'moderate',
+      },
       { label: 'Seismic Risk Level', value: hazardRisk.seismic.toUpperCase(), status: hazardRisk.seismic === 'low' ? 'good' : 'poor' },
       { label: 'Land Stability Index', value: `${prithviScoreVal}/100`, status: prithviScoreVal >= 70 ? 'good' : 'moderate' },
     ]

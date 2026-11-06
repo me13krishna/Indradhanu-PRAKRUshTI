@@ -34,19 +34,34 @@ export const MapView: React.FC<MapViewProps> = ({ location, prakrutiScore }) => 
         leafletMap.current.removeLayer(markerRef.current);
       }
 
-      // Custom icon popup
-      const popupContent = `
-        <div style="font-family: 'Inter', sans-serif; text-align: center; padding: 4px;">
-          <h4 style="font-weight: 700; margin: 0; color: #1B4332; font-size: 14px;">${location.name.split(',')[0]}</h4>
-          <div style="background: #1B4332; color: #ffffff; padding: 4px 8px; border-radius: 12px; font-weight: bold; margin-top: 6px; font-size: 12px;">
-            Prakruti Score: ${prakrutiScore}/100
-          </div>
-        </div>
-      `;
+      // Safe DOM element popup to prevent XSS
+      const popupEl = document.createElement('div');
+      popupEl.style.fontFamily = "'Inter', sans-serif";
+      popupEl.style.textAlign = 'center';
+      popupEl.style.padding = '4px';
+
+      const heading = document.createElement('h4');
+      heading.style.fontWeight = '700';
+      heading.style.margin = '0';
+      heading.style.color = '#1B4332';
+      heading.style.fontSize = '14px';
+      heading.textContent = location.name.split(',')[0];
+      popupEl.appendChild(heading);
+
+      const scoreBadge = document.createElement('div');
+      scoreBadge.style.background = '#1B4332';
+      scoreBadge.style.color = '#ffffff';
+      scoreBadge.style.padding = '4px 8px';
+      scoreBadge.style.borderRadius = '12px';
+      scoreBadge.style.fontWeight = 'bold';
+      scoreBadge.style.marginTop = '6px';
+      scoreBadge.style.fontSize = '12px';
+      scoreBadge.textContent = `Prakruti Score: ${prakrutiScore}/100`;
+      popupEl.appendChild(scoreBadge);
 
       markerRef.current = L.marker([location.latitude, location.longitude])
         .addTo(leafletMap.current)
-        .bindPopup(popupContent)
+        .bindPopup(popupEl)
         .openPopup();
     });
 
