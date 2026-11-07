@@ -193,3 +193,4 @@ export const FilmScene04Intelligence: React.FC<FilmScene04IntelligenceProps> = (
     </section>
   );
 };
+

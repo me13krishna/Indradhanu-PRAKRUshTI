@@ -4,7 +4,7 @@ import { FilmScene01Awakening } from '../story/FilmScene01Awakening';
 import { FilmScene02CauseEffect } from '../story/FilmScene02CauseEffect';
 import { FilmScene03Elements } from '../story/FilmScene03Elements';
 import { FilmScene04Intelligence } from '../story/FilmScene04Intelligence';
-import { Scene05Explore } from '../story/Scene05Explore';
+import { FilmScene05LiveWorld } from '../story/FilmScene05LiveWorld';
 import { Scene06Vision } from '../story/Scene06Vision';
 import { StoryFooter } from '../story/StoryFooter';
 import { useSmoothScroll } from '../../hooks/useSmoothScroll';
@@ -59,11 +59,10 @@ export const LandingPage: React.FC = () => {
         {/* Scene 4: The Intelligence (Glass Core & Signal Filter, 8 Words) */}
         <FilmScene04Intelligence onScrollToNext={() => handleSelectScene(4)} />
 
-        {/* Temporary bridge for Scenes 5 and 6 while we await user review */}
-        <div id="scene-5">
-          <Scene05Explore onScrollToNext={() => handleSelectScene(5)} />
-        </div>
+        {/* Scene 5: Your World, Live (Interactive Biome Pod & 4 Deep-Link Tiles, 12 Words) */}
+        <FilmScene05LiveWorld onScrollToNext={() => handleSelectScene(5)} />
 
+        {/* Temporary bridge for Scene 6 while we await user review */}
         <div id="scene-6">
           <Scene06Vision />
         </div>
