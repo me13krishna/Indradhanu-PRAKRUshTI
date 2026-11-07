@@ -104,3 +104,4 @@ export const ProceduralLandscape: React.FC<ProceduralLandscapeProps> = ({
     </div>
   );
 };
+

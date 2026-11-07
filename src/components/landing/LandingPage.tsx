@@ -2,8 +2,8 @@ import React from 'react';
 import { StoryNav } from '../story/StoryNav';
 import { Scene01Awakening } from '../story/Scene01Awakening';
 import { Scene02Fracture } from '../story/Scene02Fracture';
+import { Scene03Elements } from '../story/Scene03Elements';
 import { MethodologySection } from './MethodologySection';
-import { MahabhutaFrameworkSection } from './MahabhutaFrameworkSection';
 import { ScientificFoundationSection } from './ScientificFoundationSection';
 import { PlatformPreviewSection } from './PlatformPreviewSection';
 import { LandingFooter } from './LandingFooter';
@@ -13,7 +13,7 @@ export const LandingPage: React.FC = () => {
   const { scrollTo } = useSmoothScroll({ enabled: true });
 
   const scrollToSection = (sectionId: string) => {
-    // Canonical mapping bridging Phase 2 new narrative IDs to existing sections
+    // Canonical mapping bridging narrative IDs to section targets
     const idMap: Record<string, string> = {
       awakening: 'awakening',
       fracture: 'fracture',
@@ -45,9 +45,7 @@ export const LandingPage: React.FC = () => {
         <Scene02Fracture onScrollToNext={() => scrollToSection('elements')} />
 
         {/* Chapter 03: The Panch Mahabhuta Framework (5-Element Deep Dive) */}
-        <div id="elements">
-          <MahabhutaFrameworkSection />
-        </div>
+        <Scene03Elements onScrollToNext={() => scrollToSection('engine')} />
 
         {/* Chapter 04: The Planetary Intelligence Engine & Scoring Foundation */}
         <div id="engine">

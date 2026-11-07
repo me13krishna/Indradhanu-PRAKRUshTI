@@ -194,3 +194,4 @@ export const ParticleCanvas: React.FC<ParticleCanvasProps> = ({
     </div>
   );
 };
+

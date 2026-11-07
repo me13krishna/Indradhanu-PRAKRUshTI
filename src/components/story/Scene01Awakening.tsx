@@ -126,3 +126,4 @@ export const Scene01Awakening: React.FC<Scene01AwakeningProps> = ({ onScrollToNe
     </section>
   );
 };
+

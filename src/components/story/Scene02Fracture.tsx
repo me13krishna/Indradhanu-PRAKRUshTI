@@ -281,3 +281,4 @@ export const Scene02Fracture: React.FC<Scene02FractureProps> = ({ onScrollToNext
     </section>
   );
 };
+
