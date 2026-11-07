@@ -1,20 +1,42 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { normalizeRoute, parseActiveHash, readSkipPreference, SKIP_PREFERENCE_KEY } from '../../context/RouterContext';
 
-function normalizeRoute(pathname: string): '/' | '/app' {
-  if (pathname.startsWith('/app')) {
-    return '/app';
-  }
-  return '/';
-}
+// Safe mock for localStorage in Node/Vitest environment
+const storageMock = (() => {
+  let store: Record<string, string> = {};
+  return {
+    getItem: (key: string) => store[key] || null,
+    setItem: (key: string, value: string) => {
+      store[key] = value.toString();
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    clear: () => {
+      store = {};
+    },
+  };
+})();
 
-describe('Zero-Dependency History API Route Resolver (Phase 1 & 2)', () => {
+Object.defineProperty(globalThis, 'localStorage', {
+  value: storageMock,
+  writable: true,
+});
+
+describe('Zero-Dependency Route & Story Deep-Link Resolver (Phase 1)', () => {
+  beforeEach(() => {
+    storageMock.clear();
+    vi.restoreAllMocks();
+  });
+
   it('correctly resolves root path to story landing page', () => {
     expect(normalizeRoute('/')).toBe('/');
-    expect(normalizeRoute('/#challenge')).toBe('/');
-    expect(normalizeRoute('/#methodology')).toBe('/');
-    expect(normalizeRoute('/#framework')).toBe('/');
-    expect(normalizeRoute('/#foundation')).toBe('/');
-    expect(normalizeRoute('/#preview')).toBe('/');
+    expect(normalizeRoute('/#awakening')).toBe('/');
+    expect(normalizeRoute('/#fracture')).toBe('/');
+    expect(normalizeRoute('/#elements')).toBe('/');
+    expect(normalizeRoute('/#engine')).toBe('/');
+    expect(normalizeRoute('/#explore')).toBe('/');
+    expect(normalizeRoute('/#vision')).toBe('/');
   });
 
   it('correctly resolves app path to the functional platform shell', () => {
@@ -30,13 +52,27 @@ describe('Zero-Dependency History API Route Resolver (Phase 1 & 2)', () => {
     expect(normalizeRoute('/app-preview')).toBe('/app');
   });
 
-  it('validates required story section anchors for Phase 2 landing page', () => {
-    const requiredAnchors = ['challenge', 'methodology', 'framework', 'foundation', 'preview'];
-    expect(requiredAnchors).toHaveLength(5);
-    requiredAnchors.forEach((anchor) => {
-      expect(typeof anchor).toBe('string');
-      expect(anchor.length).toBeGreaterThan(0);
+  it('correctly parses active chapter hashes', () => {
+    expect(parseActiveHash('')).toBe('');
+    expect(parseActiveHash('awakening')).toBe('#awakening');
+    expect(parseActiveHash('#elements')).toBe('#elements');
+    expect(parseActiveHash('#engine')).toBe('#engine');
+  });
+
+  it('manages skip story preference via localStorage correctly', () => {
+    expect(readSkipPreference()).toBe(false);
+    storageMock.setItem(SKIP_PREFERENCE_KEY, 'true');
+    expect(readSkipPreference()).toBe(true);
+    storageMock.setItem(SKIP_PREFERENCE_KEY, 'false');
+    expect(readSkipPreference()).toBe(false);
+  });
+
+  it('validates required cinematic story chapter anchors', () => {
+    const requiredChapters = ['awakening', 'fracture', 'elements', 'engine', 'explore', 'vision'];
+    expect(requiredChapters).toHaveLength(6);
+    requiredChapters.forEach((chapter) => {
+      expect(typeof chapter).toBe('string');
+      expect(chapter.length).toBeGreaterThan(0);
     });
   });
 });
-

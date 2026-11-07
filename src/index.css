@@ -63,6 +63,98 @@ h1, h2, h3, .font-serif-title {
   background: rgba(27, 67, 50, 0.6);
 }
 
+/* Lenis Smooth Scroll Integration */
+html.lenis, html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* Dynamic Viewport & Mobile Safe Touch Targets */
+.h-screen-dynamic {
+  height: 100svh;
+}
+.min-h-screen-dynamic {
+  min-height: 100svh;
+}
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Fluid Typography Utilities */
+.text-fluid-hero {
+  font-size: clamp(2.2rem, 5vw, 4.4rem);
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+}
+.text-fluid-title {
+  font-size: clamp(1.65rem, 3.6vw, 2.85rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+.text-fluid-sub {
+  font-size: clamp(1.05rem, 2vw, 1.35rem);
+  line-height: 1.5;
+}
+
+/* Two-Layer Interpretive Framework: Cultural Lens vs Scientific Signals */
+.layer-cultural {
+  font-family: var(--font-serif);
+  color: #B45309;
+  letter-spacing: 0.01em;
+}
+.dark .layer-cultural {
+  color: #FBBF24;
+}
+
+.layer-scientific {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Apple-Grade Floating Glass Pill & Highlights */
+.glass-pill {
+  background: rgba(255, 255, 255, 0.76);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(27, 67, 50, 0.06);
+}
+.dark .glass-pill {
+  background: rgba(18, 24, 26, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 14px 40px -12px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.specular-border {
+  position: relative;
+}
+.specular-border::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  pointer-events: none;
+}
+.dark .specular-border::before {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+}
+
 /* Subtle background animations & living nature effects */
 @keyframes float {
   0%, 100% { transform: translateY(0px) rotate(0deg); }
