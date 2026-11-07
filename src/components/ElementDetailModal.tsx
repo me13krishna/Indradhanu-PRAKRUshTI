@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import type { ElementScore, MahabhutaElementKey, SubMetricBreakdown } from '../types/prakrushti';
 import { X, BookOpen, ExternalLink, Activity, Info, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { ElementalRealisticIcon } from './ElementalRealisticIcon';
 
 interface ElementDetailModalProps {
   elementKey: MahabhutaElementKey;
@@ -175,11 +176,8 @@ export const ElementDetailModal: React.FC<ElementDetailModalProps> = ({ elementK
 
         {/* Modal Header */}
         <div className="flex items-center space-x-3 sm:space-x-4 mb-6 pb-4 border-b border-slate-100 dark:border-white/5">
-          <div
-            className="w-14 h-14 rounded-2xl flex items-center justify-center text-white text-2xl font-serif font-bold shadow-lg flex-shrink-0"
-            style={{ backgroundColor: element.color }}
-          >
-            {element.sanskritName[0]}
+          <div className="flex-shrink-0 transition-transform duration-300 hover:scale-105">
+            <ElementalRealisticIcon elementKey={elementKey} size="lg" />
           </div>
           <div>
             <div className="flex flex-wrap items-center gap-2">

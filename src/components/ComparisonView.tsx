@@ -3,6 +3,7 @@ import type { LocationData, PrakrutiAnalysis, MahabhutaElementKey } from '../typ
 import { getPrakrutiAnalysis } from '../services/prakrushtiApi';
 import { searchLocations, PRESET_LOCATIONS } from '../services/geocoding';
 import { useLanguage } from '../context/LanguageContext';
+import { ElementalRealisticIcon } from './ElementalRealisticIcon';
 import {
   Sliders,
   ArrowRightLeft,
@@ -436,11 +437,14 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({ initialLocationA
                   <div key={key} className="p-4 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/5 space-y-3">
                     
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                      <div className="flex items-center space-x-2">
-                        <span className="font-devanagari font-bold text-base text-slate-800 dark:text-slate-100">
-                          {elA.sanskritName}
-                        </span>
-                        <span className="text-xs text-slate-400 font-sans">({elA.englishName})</span>
+                      <div className="flex items-center space-x-2.5">
+                        <ElementalRealisticIcon elementKey={key} size="sm" />
+                        <div>
+                          <span className="font-devanagari font-bold text-base text-slate-800 dark:text-slate-100 mr-1.5">
+                            {elA.sanskritName}
+                          </span>
+                          <span className="text-xs text-slate-400 font-sans">({elA.englishName})</span>
+                        </div>
                       </div>
 
                       <div className="flex items-center space-x-3 font-mono text-xs">

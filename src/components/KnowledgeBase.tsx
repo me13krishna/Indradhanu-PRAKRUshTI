@@ -1,13 +1,29 @@
 import React from 'react';
 import { BookOpen, Sparkles, Feather, Globe2, Droplets, Flame, Wind, Sun } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import type { MahabhutaElementKey } from '../types/prakrushti';
+import { ElementalRealisticIcon } from './ElementalRealisticIcon';
 
 export const KnowledgeBase: React.FC = () => {
   const { language } = useLanguage();
   const isHi = language === 'hi';
 
-  const knowledgeCards = [
+  const knowledgeCards: Array<{
+    elementKey: MahabhutaElementKey;
+    sanskrit: string;
+    english: string;
+    icon: any;
+    color: string;
+    accentBg: string;
+    ancientWisdomEn: string;
+    ancientWisdomHi: string;
+    modernScienceEn: string;
+    modernScienceHi: string;
+    variablesEn: string[];
+    variablesHi: string[];
+  }> = [
     {
+      elementKey: 'prithvi',
       sanskrit: 'पृथ्वी',
       english: 'Prithvi (Earth & Pedosphere)',
       icon: Globe2,
@@ -25,6 +41,7 @@ export const KnowledgeBase: React.FC = () => {
       variablesHi: ['सतही मृदा नमी (m³/m³)', 'भू-सतह तापमान (°C)', 'यूएसजीएस भूकंपीय जोखिम'],
     },
     {
+      elementKey: 'jal',
       sanskrit: 'जल',
       english: 'Jal (Water & Hydrosphere)',
       icon: Droplets,
@@ -42,6 +59,7 @@ export const KnowledgeBase: React.FC = () => {
       variablesHi: ['२४ घंटे की वर्षा (मिमी)', 'सापेक्ष आर्द्रता (%)', 'सतही अपवाह प्रॉक्सी'],
     },
     {
+      elementKey: 'agni',
       sanskrit: 'अग्नि',
       english: 'Agni (Thermal Energy & Radiation)',
       icon: Flame,
@@ -59,6 +77,7 @@ export const KnowledgeBase: React.FC = () => {
       variablesHi: ['एनओएए हीट इंडेक्स (°C)', '२ मीटर तापमान (°C)', 'फॉसबर्ग दावानल इंडेक्स प्रॉक्सी'],
     },
     {
+      elementKey: 'vayu',
       sanskrit: 'वायु',
       english: 'Vayu (Atmosphere & Gas Dynamics)',
       icon: Wind,
@@ -76,6 +95,7 @@ export const KnowledgeBase: React.FC = () => {
       variablesHi: ['PM2.5 एवं PM10 कण (µg/m³)', 'वायु गुणवत्ता सूचकांक (AQI)', 'हवा की गति एवं झोंके (किमी/घंटा)'],
     },
     {
+      elementKey: 'akash',
       sanskrit: 'आकाश',
       english: 'Akash (Upper Atmosphere & Space)',
       icon: Sun,
@@ -118,20 +138,15 @@ export const KnowledgeBase: React.FC = () => {
       {/* 5 Elemental Cards */}
       <div className="space-y-6">
         {knowledgeCards.map((card, idx) => {
-          const Icon = card.icon;
-
           return (
             <div
               key={idx}
               className="card-paper p-6 sm:p-8 rounded-3xl border border-slate-200/80 dark:border-white/10 relative overflow-hidden shadow-lg"
             >
               {/* Card Title */}
-              <div className="flex items-center space-x-3 mb-6 pb-4 border-b border-slate-100 dark:border-white/5">
-                <div
-                  className="w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-md flex-shrink-0"
-                  style={{ backgroundColor: card.color }}
-                >
-                  <Icon className="w-6 h-6" />
+              <div className="flex items-center space-x-3 sm:space-x-4 mb-6 pb-4 border-b border-slate-100 dark:border-white/5">
+                <div className="flex-shrink-0 transition-transform duration-300 hover:scale-110">
+                  <ElementalRealisticIcon elementKey={card.elementKey} size="lg" />
                 </div>
                 <div>
                   <div className="flex items-center space-x-2">

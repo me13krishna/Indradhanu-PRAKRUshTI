@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
+import type { MahabhutaElementKey } from '../../types/prakrushti';
+import { ElementalRealisticIcon } from '../ElementalRealisticIcon';
 import {
   Info,
   Droplets,
@@ -164,92 +166,13 @@ export const FilmScene03Elements: React.FC<FilmScene03ElementsProps> = ({
             /* Individual Element Animated World */
             <div className="relative w-full h-full flex flex-col items-center justify-center">
               
-              {/* Procedural Visual Animation Canvas */}
-              <svg
-                className="w-48 h-48 sm:w-60 sm:h-60"
-                viewBox="0 0 200 200"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                {/* Outer Breathing Ring */}
-                <circle
-                  cx="100"
-                  cy="100"
-                  r="85"
-                  stroke={current.color}
-                  strokeWidth="2"
-                  strokeDasharray="6 6"
-                  className="animate-spin"
-                  style={{ animationDuration: '30s' }}
+              {/* Realistic Animated Photorealistic Elemental Centerpiece */}
+              <div className="relative flex flex-col items-center justify-center my-auto transition-transform duration-500 scale-110 sm:scale-125">
+                <ElementalRealisticIcon
+                  elementKey={current.id as MahabhutaElementKey}
+                  size="2xl"
                 />
-
-                {/* Inner Glow Sphere */}
-                <circle
-                  cx="100"
-                  cy="100"
-                  r="65"
-                  fill={current.color}
-                  fillOpacity="0.15"
-                />
-
-                {/* Prithvi: Growing Roots & Seismic Ripple */}
-                {current.id === 'prithvi' && (
-                  <g stroke={current.color} strokeWidth="2.5" strokeLinecap="round">
-                    <path d="M100 65 L100 135" />
-                    <path d="M100 95 L80 120" />
-                    <path d="M100 105 L120 125" />
-                    <path d="M80 120 L70 135" />
-                    <path d="M120 125 L130 140" />
-                    <circle cx="100" cy="100" r="45" stroke={current.secondaryColor} strokeWidth="1" strokeDasharray="3 3" className="animate-ping" style={{ animationDuration: '3s' }} />
-                  </g>
-                )}
-
-                {/* Jal: Fluid Waves & Water-Cycle Loop */}
-                {current.id === 'jal' && (
-                  <g fill="none" stroke={current.color} strokeWidth="3" strokeLinecap="round">
-                    <path d="M60 90 Q 80 80, 100 90 T 140 90" className="animate-pulse" />
-                    <path d="M50 110 Q 75 100, 100 110 T 150 110" />
-                    <path d="M65 130 Q 85 120, 100 130 T 135 130" />
-                    <circle cx="100" cy="65" r="4" fill={current.secondaryColor} />
-                    <circle cx="85" cy="55" r="3" fill={current.secondaryColor} />
-                    <circle cx="115" cy="55" r="3" fill={current.secondaryColor} />
-                  </g>
-                )}
-
-                {/* Agni: Radiant Thermal Embers & Sunbeams */}
-                {current.id === 'agni' && (
-                  <g fill={current.color}>
-                    <path d="M100 45 C 80 75, 70 105, 80 130 C 90 145, 110 145, 120 130 C 130 105, 120 75, 100 45 Z" fillOpacity="0.8" />
-                    <path d="M100 75 C 90 95, 85 110, 92 125 C 96 132, 104 132, 108 125 C 115 110, 110 95, 100 75 Z" fill="#FFE58F" />
-                    <circle cx="80" cy="65" r="2.5" fill="#FFE58F" className="animate-ping" />
-                    <circle cx="120" cy="75" r="2.5" fill="#FFE58F" className="animate-ping" style={{ animationDelay: '1s' }} />
-                  </g>
-                )}
-
-                {/* Vayu: Streamlines & Particulate Dispersion */}
-                {current.id === 'vayu' && (
-                  <g stroke={current.color} strokeWidth="2.5" strokeLinecap="round">
-                    <path d="M55 80 C 80 80, 100 70, 125 70 C 140 70, 150 80, 140 90 C 130 95, 120 90, 125 80" />
-                    <path d="M45 105 C 75 105, 105 115, 135 115 C 150 115, 160 105, 150 95 C 140 90, 130 95, 135 105" />
-                    <circle cx="65" cy="95" r="2" fill={current.secondaryColor} />
-                    <circle cx="95" cy="90" r="1.5" fill={current.secondaryColor} />
-                    <circle cx="115" cy="110" r="2" fill={current.secondaryColor} />
-                  </g>
-                )}
-
-                {/* Akash: Starfield & UV Stratospheric Arc */}
-                {current.id === 'akash' && (
-                  <g fill="none">
-                    <path d="M50 130 A 70 70 0 0 1 150 130" stroke={current.color} strokeWidth="3" />
-                    <path d="M65 140 A 50 50 0 0 1 135 140" stroke={current.secondaryColor} strokeWidth="1.5" strokeDasharray="4 4" />
-                    <circle cx="100" cy="85" r="10" fill="#FFE58F" />
-                    <circle cx="65" cy="70" r="1.5" fill="#FFFFFF" />
-                    <circle cx="135" cy="65" r="2" fill="#FFFFFF" />
-                    <circle cx="145" cy="95" r="1.5" fill="#FFFFFF" />
-                    <circle cx="55" cy="100" r="2" fill="#FFFFFF" />
-                  </g>
-                )}
-              </svg>
+              </div>
 
               {/* Element Label: Sanskrit + English only, NO descriptions */}
               <div className="mt-3 text-center">
