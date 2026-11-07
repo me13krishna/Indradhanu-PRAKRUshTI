@@ -371,3 +371,4 @@ export const FilmScene03Elements: React.FC<FilmScene03ElementsProps> = ({
     </section>
   );
 };
+

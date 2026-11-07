@@ -28,3 +28,4 @@ describe('Scene 3 Film Pinned Visual Elements Verification', () => {
     expect(disclosure.split(/\s+/).length).toBeLessThanOrEqual(10);
   });
 });
+

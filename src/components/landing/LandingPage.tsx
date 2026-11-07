@@ -3,7 +3,7 @@ import { FilmNav } from '../story/FilmNav';
 import { FilmScene01Awakening } from '../story/FilmScene01Awakening';
 import { FilmScene02CauseEffect } from '../story/FilmScene02CauseEffect';
 import { FilmScene03Elements } from '../story/FilmScene03Elements';
-import { Scene04Engine } from '../story/Scene04Engine';
+import { FilmScene04Intelligence } from '../story/FilmScene04Intelligence';
 import { Scene05Explore } from '../story/Scene05Explore';
 import { Scene06Vision } from '../story/Scene06Vision';
 import { StoryFooter } from '../story/StoryFooter';
@@ -56,11 +56,10 @@ export const LandingPage: React.FC = () => {
         {/* Scene 3: The Five Elements (Visual Identity, 4 Words) */}
         <FilmScene03Elements onScrollToNext={() => handleSelectScene(3)} />
 
-        {/* Temporary bridge for Scenes 4 to 6 while we await user review */}
-        <div id="scene-4">
-          <Scene04Engine onScrollToNext={() => handleSelectScene(4)} />
-        </div>
+        {/* Scene 4: The Intelligence (Glass Core & Signal Filter, 8 Words) */}
+        <FilmScene04Intelligence onScrollToNext={() => handleSelectScene(4)} />
 
+        {/* Temporary bridge for Scenes 5 and 6 while we await user review */}
         <div id="scene-5">
           <Scene05Explore onScrollToNext={() => handleSelectScene(5)} />
         </div>
