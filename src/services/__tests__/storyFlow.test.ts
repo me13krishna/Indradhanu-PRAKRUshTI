@@ -23,3 +23,4 @@ describe('Complete 6-Scene Cinematic Experience Architecture (Phase 4)', () => {
     expect(biomes).toHaveLength(3);
   });
 });
+

@@ -5,7 +5,7 @@ import { getPrakrutiAnalysis } from './services/prakrushtiApi';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { RouterProvider, useRouter } from './context/RouterContext';
 import { LandingPage } from './components/landing/LandingPage';
-import { Header } from './components/Header';
+import { AppSidebar } from './components/layout/AppSidebar';
 import { LocationSearch } from './components/LocationSearch';
 import { DashboardContextBar } from './components/DashboardContextBar';
 import { PrakrutiGauge } from './components/PrakrutiGauge';
@@ -23,18 +23,19 @@ import { WhatIfSimulator } from './components/WhatIfSimulator';
 import { KnowledgeBase } from './components/KnowledgeBase';
 import { AboutSection } from './components/AboutSection';
 import { ReportExportModal } from './components/ReportExportModal';
-import { Loader2, Globe, ShieldCheck, Activity, Calendar, Bot } from 'lucide-react';
+import { Loader2, Globe, ShieldCheck, Activity, Calendar, Bot, Cpu } from 'lucide-react';
 
 const MainAppContent: React.FC = () => {
   const { currentRoute } = useRouter();
   const { language } = useLanguage();
   const isHi = language === 'hi';
 
-  // Persistent application state (survives route switches between / and /app)
+  // Persistent application state
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [currentLocation, setCurrentLocation] = useState<LocationData>(PRESET_LOCATIONS[0]); // Default Pune
   const [analysis, setAnalysis] = useState<PrakrutiAnalysis | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [densityMode, setDensityMode] = useState<'zen' | 'technical'>('technical');
 
   const [selectedElementKey, setSelectedElementKey] = useState<MahabhutaElementKey | null>(null);
   const [showReportExport, setShowReportExport] = useState<boolean>(false);
@@ -74,30 +75,61 @@ const MainAppContent: React.FC = () => {
 
   // Route 2: Working Environmental Intelligence Platform (at /app)
   return (
-    <div className="min-h-screen flex flex-col font-sans bg-paper dark:bg-charcoal text-slate-800 dark:text-slate-100 transition-colors">
+    <div className="min-h-screen flex flex-col font-sans bg-paper dark:bg-charcoal text-slate-800 dark:text-slate-100 transition-colors md:pl-20 lg:pl-64 pb-20 md:pb-12">
       
-      {/* Header Navigation */}
+      {/* App Shell Sidebar (Desktop Left Rail / Mobile Bottom Bar) */}
       <div className={showReportExport ? 'no-print' : ''}>
-        <Header
+        <AppSidebar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           onExportReport={() => setShowReportExport(true)}
+          currentLocationName={currentLocation.name}
         />
       </div>
 
       {/* Main Content Viewport */}
-      <main className={`flex-1 pb-16 ${showReportExport ? 'no-print' : ''}`}>
+      <main className={`flex-1 ${showReportExport ? 'no-print' : ''}`}>
         
         {/* Global Location & Telemetry Status Bar */}
         <div className="bg-brand-dark/5 dark:bg-white/5 border-b border-slate-200/50 dark:border-white/5 py-2 px-4 text-center">
-          <div className="max-w-7xl mx-auto flex items-center justify-center space-x-2 text-xs text-slate-600 dark:text-slate-300 font-mono">
-            <Globe className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-            <span>{isHi ? 'पर्यावरणीय बुद्धिमत्ता टेलीमेट्री:' : 'Environmental intelligence telemetry for:'}</span>
-            <strong className="text-slate-800 dark:text-slate-100">{currentLocation.name}</strong>
+          <div className="max-w-7xl mx-auto flex items-center justify-between text-xs text-slate-600 dark:text-slate-300 font-mono">
+            <div className="flex items-center space-x-2">
+              <Globe className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span>{isHi ? 'टेलीमेट्री:' : 'Telemetry for:'}</span>
+              <strong className="text-slate-800 dark:text-slate-100">{currentLocation.name}</strong>
+            </div>
+
+            {/* Density Mode Switcher (Visible in Dashboard) */}
+            {activeTab === 'dashboard' && (
+              <div className="hidden sm:flex items-center space-x-1.5 p-1 rounded-xl bg-slate-200/60 dark:bg-white/10 text-[11px]">
+                <button
+                  onClick={() => setDensityMode('zen')}
+                  className={`px-2.5 py-0.5 rounded-lg font-semibold transition-all ${
+                    densityMode === 'zen'
+                      ? 'bg-emerald-600 text-white shadow-sm'
+                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-900'
+                  }`}
+                  title="Simplified high-level overview"
+                >
+                  🌿 {isHi ? 'ज़ेन मोड' : 'Zen'}
+                </button>
+                <button
+                  onClick={() => setDensityMode('technical')}
+                  className={`px-2.5 py-0.5 rounded-lg font-semibold transition-all ${
+                    densityMode === 'technical'
+                      ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
+                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-900'
+                  }`}
+                  title="Dense scientific telemetry and equations"
+                >
+                  🔬 {isHi ? 'तकनीकी' : 'Technical'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Tab 1: Panch Mahabhuta Core Dashboard (7-Section Hierarchy) */}
+        {/* Tab 1: Panch Mahabhuta Core Dashboard */}
         {activeTab === 'dashboard' && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 animate-fadeIn">
             
@@ -129,7 +161,20 @@ const MainAppContent: React.FC = () => {
                   onExportReport={() => setShowReportExport(true)}
                 />
 
-                {/* Section 1 & 2: Primary Overview Row (What is condition? Where is it?) */}
+                {/* Technical Mode Analytical Formula Banner */}
+                {densityMode === 'technical' && (
+                  <div className="p-3.5 rounded-2xl bg-slate-900 text-emerald-300 font-mono text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border border-emerald-500/30 shadow-lg">
+                    <div className="flex items-center space-x-2">
+                      <Cpu className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                      <span>Order p=0.5 Generalized Mean: Prakruti = (Σ wᵢ · √Sᵢ)²</span>
+                    </div>
+                    <span className="text-[11px] text-slate-400">
+                      Attribution: Δᵢ = S(S) - S(S₋ᵢ, S̄)
+                    </span>
+                  </div>
+                )}
+
+                {/* Section 1 & 2: Primary Overview Row (Prakruti Score Gauge + Map) */}
                 <section aria-labelledby="section-overview-title">
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
                     
@@ -157,7 +202,7 @@ const MainAppContent: React.FC = () => {
                   </div>
                 </section>
 
-                {/* Section 3: Which environmental dimensions contribute? (5 Mahabhuta Cards) */}
+                {/* Section 3: 5 Mahabhuta Elemental Cards */}
                 <section aria-labelledby="section-elements-title">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-4">
                     <div>
@@ -176,7 +221,6 @@ const MainAppContent: React.FC = () => {
                     </span>
                   </div>
 
-                  {/* Responsive Grid: 1-col on mobile (360px/390px), 2-col on sm, 3-col on md, 5-col on lg */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                     {elementKeys.map((key) => (
                       <ElementCard
@@ -189,7 +233,7 @@ const MainAppContent: React.FC = () => {
                   </div>
                 </section>
 
-                {/* Section 4: What evidence supports the assessment? (Current Conditions & Proxies) */}
+                {/* Section 4: Current Environmental Conditions & Model Telemetry */}
                 <section aria-labelledby="section-conditions-title">
                   <div className="mb-2">
                     <h3 id="section-conditions-title" className="font-serif text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center space-x-2">
@@ -206,7 +250,7 @@ const MainAppContent: React.FC = () => {
                   <WeatherStrip weather={analysis.weather} />
                 </section>
 
-                {/* Section 5: What are the risks? (Explanation & Compound Hazards 2-Column Row) */}
+                {/* Section 5: AI Diagnostic Insights & Compound Hazards */}
                 <section aria-labelledby="section-risks-title">
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
                     
@@ -224,7 +268,7 @@ const MainAppContent: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Disaster Risks Matrix (Pulsing removed) */}
+                    {/* Disaster Risks Matrix */}
                     <div className="lg:col-span-5 flex">
                       <div className="w-full flex">
                         <DisasterRisks
@@ -237,7 +281,7 @@ const MainAppContent: React.FC = () => {
                   </div>
                 </section>
 
-                {/* Section 6: What might happen next? (7-Day Forecast) */}
+                {/* Section 6: 7-Day Forecast */}
                 <section aria-labelledby="section-forecast-title">
                   <div className="mb-2">
                     <h3 id="section-forecast-title" className="font-serif text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center space-x-2">
@@ -252,7 +296,7 @@ const MainAppContent: React.FC = () => {
                   <ForecastStrip forecastDays={analysis.forecastDays} />
                 </section>
 
-                {/* Section 7: What does it mean? (Contextual Assistant) */}
+                {/* Section 7: Contextual AI Assistant */}
                 <section aria-labelledby="section-assistant-title" ref={chatSectionRef}>
                   <div className="mb-2">
                     <h3 id="section-assistant-title" className="font-serif text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center space-x-2">
@@ -276,32 +320,42 @@ const MainAppContent: React.FC = () => {
 
         {/* Tab 2: Comparison Mode */}
         {activeTab === 'compare' && (
-          <ComparisonView initialLocationA={currentLocation} />
+          <div className="animate-fadeIn">
+            <ComparisonView initialLocationA={currentLocation} />
+          </div>
         )}
 
         {/* Tab 3: Global Hotspots Map */}
         {activeTab === 'hotspots' && (
-          <GlobalHotspots onSelectCity={handleSelectLocation} />
+          <div className="animate-fadeIn">
+            <GlobalHotspots onSelectCity={handleSelectLocation} />
+          </div>
         )}
 
         {/* Tab 4: What-If Simulator */}
         {activeTab === 'simulator' && analysis && (
-          <WhatIfSimulator analysis={analysis} />
+          <div className="animate-fadeIn">
+            <WhatIfSimulator analysis={analysis} />
+          </div>
         )}
 
         {/* Tab 5: Knowledge Encyclopedia */}
         {activeTab === 'knowledge' && (
-          <KnowledgeBase />
+          <div className="animate-fadeIn">
+            <KnowledgeBase />
+          </div>
         )}
 
         {/* Tab 6: About & Philosophy Section */}
         {activeTab === 'about' && (
-          <AboutSection />
+          <div className="animate-fadeIn">
+            <AboutSection />
+          </div>
         )}
       </main>
 
       {/* Deep Forest Green Anchor Footer */}
-      <footer className={`bg-[#10241B] border-t border-emerald-500/20 text-emerald-100/80 py-6 px-4 text-center text-xs font-sans ${showReportExport ? 'no-print' : ''}`}>
+      <footer className={`bg-[#10241B] border-t border-emerald-500/20 text-emerald-100/80 py-6 px-4 text-center text-xs font-sans mt-12 ${showReportExport ? 'no-print' : ''}`}>
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center space-x-2">
             <span className="font-serif font-bold text-white">PRAKRUshTI</span>
