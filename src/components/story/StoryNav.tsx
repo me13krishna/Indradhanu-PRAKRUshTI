@@ -82,18 +82,16 @@ export const StoryNav: React.FC<StoryNavProps> = ({ onScrollToChapter }) => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
           ? 'py-2 px-3 sm:px-6'
           : 'py-4 px-4 sm:px-8 bg-gradient-to-b from-black/50 via-black/20 to-transparent'
-      }`}
+        }`}
     >
       <div
-        className={`mx-auto transition-all duration-300 relative ${
-          isScrolled
+        className={`mx-auto transition-all duration-300 relative ${isScrolled
             ? 'max-w-5xl glass-pill rounded-full px-4 py-2 specular-border shadow-2xl'
             : 'max-w-7xl flex items-center justify-between'
-        }`}
+          }`}
       >
         <div className="flex items-center justify-between w-full">
           {/* Brand & Logo */}
@@ -155,11 +153,10 @@ export const StoryNav: React.FC<StoryNavProps> = ({ onScrollToChapter }) => {
                 <button
                   key={chap.id}
                   onClick={() => handleChapterClick(chap.id)}
-                  className={`text-xs font-mono px-2.5 py-1 rounded-full transition-all duration-200 flex items-center space-x-1.5 ${
-                    isActive
+                  className={`text-xs font-mono px-2.5 py-1 rounded-full transition-all duration-200 flex items-center space-x-1.5 ${isActive
                       ? 'bg-emerald-600 text-white shadow-sm font-bold scale-105'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-white/10'
-                  }`}
+                    }`}
                   aria-current={isActive ? 'step' : undefined}
                 >
                   <span className="text-[10px] opacity-75">{chap.num}</span>
@@ -208,11 +205,10 @@ export const StoryNav: React.FC<StoryNavProps> = ({ onScrollToChapter }) => {
             <div className="relative hidden xl:block">
               <button
                 onClick={() => setShowSkipPopover(!showSkipPopover)}
-                className={`text-[11px] font-mono px-2 py-1 rounded-lg border transition-colors ${
-                  skipPreference
+                className={`text-[11px] font-mono px-2 py-1 rounded-lg border transition-colors ${skipPreference
                     ? 'border-emerald-500/40 text-emerald-700 dark:text-emerald-300 bg-emerald-500/10'
                     : 'border-slate-200 dark:border-white/10 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                }`}
+                  }`}
                 title="Configure intro playback preference"
               >
                 {skipPreference ? '✓ Skip: ON' : 'Skip: OFF'}

@@ -71,3 +71,4 @@ export function useSmoothScroll({ enabled = true }: UseSmoothScrollOptions = {})
     scrollTo,
   };
 }
+
