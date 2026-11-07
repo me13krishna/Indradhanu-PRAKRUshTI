@@ -5,8 +5,7 @@ import { FilmScene02CauseEffect } from '../story/FilmScene02CauseEffect';
 import { FilmScene03Elements } from '../story/FilmScene03Elements';
 import { FilmScene04Intelligence } from '../story/FilmScene04Intelligence';
 import { FilmScene05LiveWorld } from '../story/FilmScene05LiveWorld';
-import { Scene06Vision } from '../story/Scene06Vision';
-import { StoryFooter } from '../story/StoryFooter';
+import { FilmScene06Vision } from '../story/FilmScene06Vision';
 import { useSmoothScroll } from '../../hooks/useSmoothScroll';
 
 export const LandingPage: React.FC = () => {
@@ -45,7 +44,7 @@ export const LandingPage: React.FC = () => {
         onSelectScene={handleSelectScene}
       />
 
-      {/* Main Visual Film Canvas */}
+      {/* Main Continuous Visual Film Journey (Scenes 1 to 6) */}
       <main className="flex-1">
         {/* Scene 1: The Awakening (Dawn, Wonder, 4 Words) */}
         <FilmScene01Awakening onScrollToNext={() => handleSelectScene(1)} />
@@ -62,14 +61,9 @@ export const LandingPage: React.FC = () => {
         {/* Scene 5: Your World, Live (Interactive Biome Pod & 4 Deep-Link Tiles, 12 Words) */}
         <FilmScene05LiveWorld onScrollToNext={() => handleSelectScene(5)} />
 
-        {/* Temporary bridge for Scene 6 while we await user review */}
-        <div id="scene-6">
-          <Scene06Vision />
-        </div>
+        {/* Scene 6: The Vision (Healed Landscape, Hope, ENTER PRAKRUSHTI Button, 7 Words) */}
+        <FilmScene06Vision />
       </main>
-
-      {/* Quiet Single-Line Footer */}
-      <StoryFooter onScrollToTop={() => handleSelectScene(0)} />
     </div>
   );
 };
