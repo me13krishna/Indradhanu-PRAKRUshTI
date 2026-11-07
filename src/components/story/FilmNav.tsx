@@ -131,3 +131,4 @@ export const FilmNav: React.FC<FilmNavProps> = ({
     </header>
   );
 };
+

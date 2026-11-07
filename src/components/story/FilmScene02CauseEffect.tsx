@@ -252,3 +252,4 @@ export const FilmScene02CauseEffect: React.FC<FilmScene02CauseEffectProps> = ({
     </section>
   );
 };
+

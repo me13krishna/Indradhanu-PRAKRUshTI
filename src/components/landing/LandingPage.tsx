@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FilmNav } from '../story/FilmNav';
 import { FilmScene01Awakening } from '../story/FilmScene01Awakening';
 import { FilmScene02CauseEffect } from '../story/FilmScene02CauseEffect';
-import { Scene03Elements } from '../story/Scene03Elements';
+import { FilmScene03Elements } from '../story/FilmScene03Elements';
 import { Scene04Engine } from '../story/Scene04Engine';
 import { Scene05Explore } from '../story/Scene05Explore';
 import { Scene06Vision } from '../story/Scene06Vision';
@@ -53,11 +53,10 @@ export const LandingPage: React.FC = () => {
         {/* Scene 2: Why It Happens (Cause ➔ Effect Chain, 9 Words) */}
         <FilmScene02CauseEffect onScrollToNext={() => handleSelectScene(2)} />
 
-        {/* Temporary bridge for Scenes 3 to 6 while we await user review */}
-        <div id="scene-3">
-          <Scene03Elements onScrollToNext={() => handleSelectScene(3)} />
-        </div>
+        {/* Scene 3: The Five Elements (Visual Identity, 4 Words) */}
+        <FilmScene03Elements onScrollToNext={() => handleSelectScene(3)} />
 
+        {/* Temporary bridge for Scenes 4 to 6 while we await user review */}
         <div id="scene-4">
           <Scene04Engine onScrollToNext={() => handleSelectScene(4)} />
         </div>

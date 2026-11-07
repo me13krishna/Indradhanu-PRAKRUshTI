@@ -84,3 +84,4 @@ export const FilmScene01Awakening: React.FC<FilmScene01AwakeningProps> = ({
     </section>
   );
 };
+
