@@ -31,3 +31,4 @@ describe('Scene 6 Film Vision & Global Text Budget Verification', () => {
     expect(totalWords.length).toBe(44); // Exactly 44 words across the whole film!
   });
 });
+

@@ -132,3 +132,4 @@ export const FilmScene06Vision: React.FC = () => {
     </section>
   );
 };
+
