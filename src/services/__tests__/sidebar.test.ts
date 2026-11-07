@@ -20,3 +20,4 @@ describe('Platform Sidebar & Adaptive Navigation (Phase 5)', () => {
     expect(supportedModes).toContain('technical');
   });
 });
+
