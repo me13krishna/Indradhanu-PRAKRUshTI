@@ -53,3 +53,4 @@ describe('Scene 03 Panch Mahabhuta Framework & Two-Layer Architecture (Phase 3)'
     expect(prithvi?.scientificVariablesEn.some((v) => v.includes('USGS Earthquake'))).toBe(true);
   });
 });
+
