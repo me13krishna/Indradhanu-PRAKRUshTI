@@ -1,7 +1,7 @@
-import React from 'react';
-import { StoryNav } from '../story/StoryNav';
-import { Scene01Awakening } from '../story/Scene01Awakening';
-import { Scene02Fracture } from '../story/Scene02Fracture';
+import React, { useState, useEffect } from 'react';
+import { FilmNav } from '../story/FilmNav';
+import { FilmScene01Awakening } from '../story/FilmScene01Awakening';
+import { FilmScene02CauseEffect } from '../story/FilmScene02CauseEffect';
 import { Scene03Elements } from '../story/Scene03Elements';
 import { Scene04Engine } from '../story/Scene04Engine';
 import { Scene05Explore } from '../story/Scene05Explore';
@@ -11,55 +11,68 @@ import { useSmoothScroll } from '../../hooks/useSmoothScroll';
 
 export const LandingPage: React.FC = () => {
   const { scrollTo } = useSmoothScroll({ enabled: true });
+  const [activeSceneIndex, setActiveSceneIndex] = useState<number>(0);
 
-  const scrollToSection = (sectionId: string) => {
-    // Canonical mapping bridging narrative IDs and legacy anchors
-    const idMap: Record<string, string> = {
-      awakening: 'awakening',
-      fracture: 'fracture',
-      challenge: 'fracture',
-      elements: 'elements',
-      framework: 'elements',
-      engine: 'engine',
-      methodology: 'engine',
-      foundation: 'engine',
-      explore: 'explore',
-      preview: 'explore',
-      vision: 'vision',
+  const sceneIds = ['scene-1', 'scene-2', 'scene-3', 'scene-4', 'scene-5', 'scene-6'];
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPos = window.scrollY + window.innerHeight * 0.45;
+      for (let i = sceneIds.length - 1; i >= 0; i--) {
+        const el = document.getElementById(sceneIds[i]);
+        if (el && el.offsetTop <= scrollPos) {
+          setActiveSceneIndex(i);
+          break;
+        }
+      }
     };
 
-    const targetId = idMap[sectionId] || sectionId;
-    scrollTo(targetId);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleSelectScene = (index: number) => {
+    const id = sceneIds[index];
+    scrollTo(id);
   };
 
   return (
-    <div className="min-h-screen bg-paper dark:bg-charcoal text-slate-800 dark:text-slate-100 flex flex-col selection:bg-emerald-500 selection:text-white transition-colors duration-200">
-      {/* Persistent Cinematic Story Header Navigation */}
-      <StoryNav onScrollToChapter={scrollToSection} />
+    <div className="min-h-screen bg-[#060D0A] text-slate-100 flex flex-col selection:bg-emerald-500 selection:text-white transition-colors duration-200">
+      {/* Minimalist Film Navigation Chrome (Logo + 6 Dots + SKIP) */}
+      <FilmNav
+        activeSceneIndex={activeSceneIndex}
+        onSelectScene={handleSelectScene}
+      />
 
-      {/* Main 6-Chapter Cinematic Storyflow */}
+      {/* Main Visual Film Canvas */}
       <main className="flex-1">
-        {/* Chapter 01: The Awakening (Earth Equilibrium & Living Telemetry) */}
-        <Scene01Awakening onScrollToNext={() => scrollToSection('fracture')} />
+        {/* Scene 1: The Awakening (Dawn, Wonder, 4 Words) */}
+        <FilmScene01Awakening onScrollToNext={() => handleSelectScene(1)} />
 
-        {/* Chapter 02: The Invisible Fracture (The Diagnostic Dilemma & Verified Citations) */}
-        <Scene02Fracture onScrollToNext={() => scrollToSection('elements')} />
+        {/* Scene 2: Why It Happens (Cause ➔ Effect Chain, 9 Words) */}
+        <FilmScene02CauseEffect onScrollToNext={() => handleSelectScene(2)} />
 
-        {/* Chapter 03: The Panch Mahabhuta Framework (5-Element Hero Showcase) */}
-        <Scene03Elements onScrollToNext={() => scrollToSection('engine')} />
+        {/* Temporary bridge for Scenes 3 to 6 while we await user review */}
+        <div id="scene-3">
+          <Scene03Elements onScrollToNext={() => handleSelectScene(3)} />
+        </div>
 
-        {/* Chapter 04: The Planetary Intelligence Engine & Mathematical Foundation */}
-        <Scene04Engine onScrollToNext={() => scrollToSection('explore')} />
+        <div id="scene-4">
+          <Scene04Engine onScrollToNext={() => handleSelectScene(4)} />
+        </div>
 
-        {/* Chapter 05: Explore the Living System (Interactive Biome Telemetry) */}
-        <Scene05Explore onScrollToNext={() => scrollToSection('vision')} />
+        <div id="scene-5">
+          <Scene05Explore onScrollToNext={() => handleSelectScene(5)} />
+        </div>
 
-        {/* Chapter 06: Vision & Planetary Stewardship (Vasudhaiva Kutumbakam) */}
-        <Scene06Vision />
+        <div id="scene-6">
+          <Scene06Vision />
+        </div>
       </main>
 
-      {/* Streamlined Competition & Academic Footer */}
-      <StoryFooter onScrollToTop={() => scrollToSection('awakening')} />
+      {/* Quiet Single-Line Footer */}
+      <StoryFooter onScrollToTop={() => handleSelectScene(0)} />
     </div>
   );
 };
