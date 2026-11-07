@@ -287,10 +287,10 @@ export const GlobalHotspots: React.FC<GlobalHotspotsProps> = ({ onSelectCity }) 
             <div
               key={idx}
               onClick={() => handleCardClick(item)}
-              className={`p-5 rounded-2xl transition-all cursor-pointer border ${
+              className={`p-5 rounded-2xl transition-all duration-300 cursor-pointer border select-none ${
                 isSelected
-                  ? 'ring-2 ring-emerald-500 shadow-xl bg-emerald-50/40 dark:bg-white/10 border-emerald-500'
-                  : 'card-paper hover:shadow-md border-slate-200/70 dark:border-white/10'
+                  ? 'ring-2 ring-emerald-500 shadow-xl bg-emerald-50/40 dark:bg-white/10 border-emerald-500 scale-[1.01]'
+                  : 'card-paper hover:shadow-xl hover:-translate-y-1 border-slate-200/70 dark:border-white/10 active:scale-[0.99]'
               }`}
             >
               <div className="flex items-center justify-between mb-3">

@@ -15,9 +15,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onScrollToSection }) =
 
   return (
     <section className="relative overflow-hidden pt-8 pb-20 md:pt-16 md:pb-28">
-      {/* Subtle organic background gradient accents */}
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-1/3 -right-32 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+      {/* Living organic background gradient accents */}
+      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none animate-drift" />
+      <div className="absolute top-1/3 -right-32 w-96 h-96 bg-amber-500/15 rounded-full blur-3xl pointer-events-none animate-float-reverse" />
+      <div className="absolute -bottom-20 left-1/3 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none animate-pulse-slow" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
@@ -100,13 +101,16 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onScrollToSection }) =
 
           {/* Right Column: Live Telemetry Preview Card */}
           <div className="lg:col-span-5">
-            <div className="relative mx-auto max-w-md lg:max-w-none rounded-2xl bg-white dark:bg-charcoal-card p-6 shadow-xl border border-slate-200/80 dark:border-white/10 space-y-5">
+            <div className="relative mx-auto max-w-md lg:max-w-none rounded-3xl bg-white/90 dark:bg-charcoal-card/90 backdrop-blur-xl p-6 sm:p-7 shadow-2xl border border-emerald-900/10 dark:border-white/10 space-y-5 transition-all duration-500 hover:shadow-emerald-950/20 group">
               
               {/* Card Header: Demonstration Baseline Indicator */}
               <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/5 pb-4">
                 <div>
                   <div className="flex items-center space-x-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                    </span>
                     <span className="text-xs font-mono font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
                       {isHi ? 'नमूना पर्यावरणीय विश्लेषण' : 'Demonstration Telemetry Baseline'}
                     </span>

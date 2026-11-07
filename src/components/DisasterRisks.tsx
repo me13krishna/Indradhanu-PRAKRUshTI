@@ -66,9 +66,9 @@ export const DisasterRisks: React.FC<DisasterRisksProps> = ({ disasterRisk, risk
         {risks.map((item, idx) => (
           <div
             key={idx}
-            className="p-4 rounded-2xl bg-white/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5 flex items-start space-x-3"
+            className="p-4 rounded-2xl bg-white/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5 flex items-start space-x-3 hover:scale-[1.015] hover:shadow-md hover:border-amber-500/30 transition-all duration-200"
           >
-            <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 mt-0.5">
+            <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 mt-0.5 shadow-sm">
               <Info className="w-4 h-4" />
             </div>
             <div>

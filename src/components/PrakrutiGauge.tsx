@@ -33,32 +33,36 @@ export const PrakrutiGauge: React.FC<PrakrutiGaugeProps> = ({ score, overallStat
   const strokeDashoffset = circumference - (score / 100) * circumference;
 
   return (
-    <div className="card-paper rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center text-center relative overflow-hidden shadow-xl border border-emerald-900/10 dark:border-white/10 h-full">
+    <div className="card-paper rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center text-center relative overflow-hidden shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border border-emerald-900/10 dark:border-white/10 h-full group select-none">
       
-      {/* Decorative subtle background aura */}
+      {/* Living breathing background aura */}
       <div 
-        className="absolute -top-24 -right-24 w-64 h-64 rounded-full blur-3xl opacity-20 pointer-events-none transition-colors duration-500"
+        className="absolute -top-24 -right-24 w-72 h-72 rounded-full blur-3xl opacity-20 group-hover:opacity-35 pointer-events-none transition-all duration-700 animate-pulse-slow"
+        style={{ backgroundColor: strokeColor }}
+      />
+      <div 
+        className="absolute -bottom-24 -left-24 w-60 h-60 rounded-full blur-3xl opacity-15 group-hover:opacity-25 pointer-events-none transition-all duration-700"
         style={{ backgroundColor: strokeColor }}
       />
 
-      <div className="flex items-center space-x-2 text-xs font-mono uppercase tracking-widest text-emerald-800 dark:text-emerald-400 mb-2">
-        <ShieldCheck className="w-4 h-4" />
+      <div className="flex items-center space-x-2 text-xs font-mono uppercase tracking-widest text-emerald-800 dark:text-emerald-400 mb-2 font-semibold">
+        <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
         <span>{t('prakrutiScore')}</span>
       </div>
 
       {/* Hero Circular SVG Gauge */}
       <div className="relative w-48 h-48 sm:w-56 sm:h-56 my-2 flex items-center justify-center">
-        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 180 180">
+        <svg className="w-full h-full transform -rotate-90 drop-shadow-md" viewBox="0 0 180 180">
           {/* Background circle track */}
           <circle
             cx="90"
             cy="90"
             r={radius}
-            className="stroke-slate-200 dark:stroke-white/10"
+            className="stroke-slate-200/80 dark:stroke-white/10"
             strokeWidth={strokeWidth}
             fill="transparent"
           />
-          {/* Animated score arc */}
+          {/* Animated score arc with luminous glow */}
           <circle
             cx="90"
             cy="90"
@@ -69,29 +73,32 @@ export const PrakrutiGauge: React.FC<PrakrutiGaugeProps> = ({ score, overallStat
             strokeDashoffset={strokeDashoffset}
             strokeLinecap="round"
             fill="transparent"
+            style={{
+              filter: `drop-shadow(0 0 6px ${strokeColor}88)`,
+            }}
             className="transition-all duration-1000 ease-out"
           />
         </svg>
 
         {/* Center score readout */}
-        <div className="absolute flex flex-col items-center justify-center">
+        <div className="absolute flex flex-col items-center justify-center transition-transform duration-300 group-hover:scale-105">
           <span className="text-4xl sm:text-5xl font-serif font-extrabold tracking-tight text-slate-800 dark:text-slate-100">
             {score}
           </span>
           <span className="text-xs text-slate-400 font-mono tracking-wider">/ 100</span>
-          <span className="text-[11px] font-devanagari text-emerald-700 dark:text-emerald-400 font-medium mt-0.5">
+          <span className="text-[11px] font-devanagari text-emerald-700 dark:text-emerald-400 font-semibold mt-0.5">
             प्रकृति सूचकांक
           </span>
         </div>
       </div>
 
       {/* Status Badge */}
-      <div className={`mt-2 inline-flex items-center space-x-2 px-4 py-1.5 rounded-full text-xs font-bold border ${badgeBg}`}>
+      <div className={`mt-2 inline-flex items-center space-x-2 px-4 py-1.5 rounded-full text-xs font-bold border ${badgeBg} shadow-sm transition-transform duration-200 group-hover:scale-105`}>
         <Icon className="w-4 h-4" />
         <span>{overallStatus}</span>
       </div>
 
-      <p className="mt-3 text-xs text-slate-500 dark:text-slate-400 max-w-xs font-sans">
+      <p className="mt-3 text-xs text-slate-500 dark:text-slate-400 max-w-xs font-sans leading-relaxed">
         Unified environmental index for <strong className="text-slate-700 dark:text-slate-200">{locationName.split(',')[0]}</strong> across all five elemental dimensions.
       </p>
     </div>

@@ -300,14 +300,14 @@ const MainAppContent: React.FC = () => {
         )}
       </main>
 
-      {/* Footer */}
-      <footer className={`bg-paper border-t border-slate-200/60 dark:bg-charcoal dark:border-white/10 py-6 px-4 text-center text-xs text-slate-500 dark:text-slate-400 font-sans ${showReportExport ? 'no-print' : ''}`}>
+      {/* Deep Forest Green Anchor Footer */}
+      <footer className={`bg-[#10241B] border-t border-emerald-500/20 text-emerald-100/80 py-6 px-4 text-center text-xs font-sans ${showReportExport ? 'no-print' : ''}`}>
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center space-x-2">
-            <span className="font-serif font-bold text-slate-800 dark:text-slate-200">PRAKRUshTI</span>
-            <span>— Built for Indradhanu PCCOE International Grand Challenge 2026</span>
+            <span className="font-serif font-bold text-white">PRAKRUshTI</span>
+            <span className="text-emerald-200/70">— Built for Indradhanu PCCOE International Grand Challenge 2026</span>
           </div>
-          <p className="font-mono text-[11px]">
+          <p className="font-mono text-[11px] text-emerald-300/80">
             Vasudhaiva Kutumbakam — The world is one family
           </p>
         </div>

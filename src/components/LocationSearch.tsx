@@ -104,7 +104,7 @@ export const LocationSearch: React.FC<LocationSearchProps> = ({ currentLocation,
       <div className="relative" ref={dropdownRef}>
         
         {/* Search input field */}
-        <div className="relative flex items-center shadow-xl shadow-brand-dark/5 rounded-2xl overflow-hidden border border-emerald-900/20 dark:border-white/10 bg-white/90 dark:bg-surface-dark/90 backdrop-blur-lg">
+        <div className="relative flex items-center shadow-xl shadow-brand-dark/5 rounded-2xl overflow-hidden border border-emerald-900/20 dark:border-white/10 bg-white/90 dark:bg-surface-dark/90 backdrop-blur-lg focus-within:border-emerald-500 focus-within:shadow-[0_0_24px_rgba(64,145,108,0.22)] transition-all duration-300">
           <div className="pl-4 text-emerald-700 dark:text-emerald-400">
             {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
           </div>

@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-brand-dark: #1B4332;
   --color-brand-light: #2D6A4F;
@@ -61,23 +63,114 @@ h1, h2, h3, .font-serif-title {
   background: rgba(27, 67, 50, 0.6);
 }
 
-/* Subtle background animations */
+/* Subtle background animations & living nature effects */
 @keyframes float {
   0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-8px) rotate(1deg); }
+  50% { transform: translateY(-7px) rotate(0.6deg); }
+}
+
+@keyframes float-reverse {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(7px) rotate(-0.6deg); }
 }
 
 @keyframes pulseGlow {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.8; }
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50% { opacity: 0.75; transform: scale(1.04); }
+}
+
+@keyframes gentleDrift {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(12px, -8px) scale(1.03); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes shimmerAmbient {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .animate-float {
-  animation: float 8s ease-in-out infinite;
+  animation: float 7s ease-in-out infinite;
+}
+
+.animate-float-reverse {
+  animation: float-reverse 9s ease-in-out infinite;
 }
 
 .animate-pulse-slow {
-  animation: pulseGlow 4s ease-in-out infinite;
+  animation: pulseGlow 5s ease-in-out infinite;
+}
+
+.animate-drift {
+  animation: gentleDrift 14s ease-in-out infinite;
+}
+
+.animate-fadeIn {
+  animation: fadeInScale 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Organic Environmental Glass & Depth */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(27, 67, 50, 0.1);
+  box-shadow: 0 10px 30px -10px rgba(16, 32, 26, 0.06), 0 2px 6px rgba(16, 32, 26, 0.02);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark .glass-panel {
+  background: rgba(26, 35, 38, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 14px 40px -12px rgba(0, 0, 0, 0.45);
+}
+
+.glass-panel-hover:hover {
+  transform: translateY(-3px);
+  border-color: rgba(64, 145, 108, 0.35);
+  box-shadow: 0 20px 40px -12px rgba(27, 67, 50, 0.15), 0 0 0 1px rgba(64, 145, 108, 0.2);
+}
+
+.dark .glass-panel-hover:hover {
+  border-color: rgba(82, 163, 115, 0.4);
+  box-shadow: 0 20px 45px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(82, 163, 115, 0.25);
+}
+
+/* Environmental Element Auras */
+.aura-prithvi {
+  background: radial-gradient(circle at 50% 50%, rgba(201, 123, 74, 0.16) 0%, transparent 70%);
+}
+.aura-jal {
+  background: radial-gradient(circle at 50% 50%, rgba(27, 107, 147, 0.16) 0%, transparent 70%);
+}
+.aura-agni {
+  background: radial-gradient(circle at 50% 50%, rgba(217, 130, 43, 0.16) 0%, transparent 70%);
+}
+.aura-vayu {
+  background: radial-gradient(circle at 50% 50%, rgba(111, 168, 201, 0.16) 0%, transparent 70%);
+}
+.aura-akash {
+  background: radial-gradient(circle at 50% 50%, rgba(122, 108, 158, 0.16) 0%, transparent 70%);
+}
+
+.hero-title-dark-green {
+  color: #14422D;
+}
+
+.dark .hero-title-dark-green {
+  color: #FDFCF9;
 }
 
 /* Leaflet Map overrides for dark mode & clean styling */

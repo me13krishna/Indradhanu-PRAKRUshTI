@@ -39,7 +39,11 @@ export const DashboardContextBar: React.FC<DashboardContextBarProps> = ({
         
         {/* Left: Location & Coordinates */}
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-          <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/5 dark:bg-white/10 text-slate-800 dark:text-slate-100 font-sans font-bold text-xs sm:text-sm">
+          <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/5 dark:bg-white/10 text-slate-800 dark:text-slate-100 font-sans font-bold text-xs sm:text-sm shadow-sm border border-emerald-900/10 dark:border-white/5">
+            <span className="relative flex h-2 w-2 mr-0.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
             <MapPin className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
             <span className="truncate max-w-[200px] sm:max-w-xs">{analysis.location.name}</span>
           </div>

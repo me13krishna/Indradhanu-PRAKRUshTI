@@ -192,13 +192,13 @@ export const PlatformPreviewSection: React.FC = () => {
               <button
                 key={m.id}
                 onClick={() => setActiveModule(idx)}
-                className={`p-3 sm:p-4 rounded-xl text-left transition-all border flex flex-col justify-between h-24 ${
+                className={`p-3 sm:p-4 rounded-xl text-left transition-all duration-200 active:scale-95 border flex flex-col justify-between h-24 ${
                   isSelected
-                    ? 'bg-brand-dark text-white border-brand-dark shadow-md shadow-emerald-900/20'
-                    : 'bg-white dark:bg-charcoal-card text-slate-700 dark:text-slate-300 hover:bg-emerald-50/50 dark:hover:bg-white/5 border-slate-200/80 dark:border-white/10'
+                    ? 'bg-brand-dark text-white border-brand-dark shadow-lg shadow-emerald-900/25 scale-[1.02]'
+                    : 'bg-white dark:bg-charcoal-card text-slate-700 dark:text-slate-300 hover:bg-emerald-50/50 dark:hover:bg-white/5 border-slate-200/80 dark:border-white/10 hover:border-emerald-500/30'
                 }`}
               >
-                <Icon className={`w-5 h-5 ${isSelected ? 'text-emerald-400' : 'text-slate-400'}`} />
+                <Icon className={`w-5 h-5 transition-transform duration-200 ${isSelected ? 'text-emerald-400 scale-110' : 'text-slate-400'}`} />
                 <span className="text-xs font-serif font-bold line-clamp-2">
                   {isHi ? m.titleHi : m.titleEn}
                 </span>
@@ -208,7 +208,7 @@ export const PlatformPreviewSection: React.FC = () => {
         </div>
 
         {/* Active Module Showcase Card */}
-        <div className="mt-8 rounded-3xl bg-white dark:bg-charcoal-card border border-slate-200/80 dark:border-white/10 shadow-xl p-6 sm:p-10">
+        <div key={activeModule} className="mt-8 rounded-3xl bg-white dark:bg-charcoal-card border border-slate-200/80 dark:border-white/10 shadow-xl p-6 sm:p-10 animate-fadeIn">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             
             {/* Left: Module Overview & Features */}

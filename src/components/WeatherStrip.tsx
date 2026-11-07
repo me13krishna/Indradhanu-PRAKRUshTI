@@ -87,14 +87,14 @@ export const WeatherStrip: React.FC<WeatherStripProps> = ({ weather }) => {
           return (
             <div
               key={idx}
-              className="p-3.5 rounded-2xl bg-white/70 dark:bg-white/5 border border-slate-200/50 dark:border-white/5 flex flex-col justify-between"
+              className="p-3.5 rounded-2xl bg-white/70 dark:bg-white/5 border border-slate-200/50 dark:border-white/5 flex flex-col justify-between hover:scale-[1.03] hover:shadow-md hover:border-emerald-500/30 transition-all duration-200 cursor-default group"
             >
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-medium text-slate-400 font-sans">{item.label}</span>
-                <Icon className={`w-4 h-4 ${item.color}`} />
+                <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 font-sans">{item.label}</span>
+                <Icon className={`w-4 h-4 ${item.color} transition-transform duration-200 group-hover:scale-115`} />
               </div>
               <div className="mt-2">
-                <span className="text-xl font-serif font-extrabold text-slate-800 dark:text-slate-100">
+                <span className="text-xl font-serif font-extrabold text-slate-800 dark:text-slate-100 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
                   {item.value}
                 </span>
                 <p className="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">{item.sub}</p>

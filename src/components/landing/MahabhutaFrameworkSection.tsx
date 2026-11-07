@@ -220,13 +220,13 @@ export const MahabhutaFrameworkSection: React.FC = () => {
               <button
                 key={el.id}
                 onClick={() => setActiveElement(idx)}
-                className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+                className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 active:scale-95 ${
                   isSelected
-                    ? 'bg-brand-dark text-white shadow-md shadow-emerald-900/20 scale-105'
-                    : 'bg-white dark:bg-charcoal-card text-slate-700 dark:text-slate-300 hover:bg-emerald-50/50 dark:hover:bg-white/5 border border-slate-200/80 dark:border-white/10'
+                    ? 'bg-brand-dark text-white shadow-lg shadow-emerald-900/25 scale-105'
+                    : 'bg-white dark:bg-charcoal-card text-slate-700 dark:text-slate-300 hover:bg-emerald-50/50 dark:hover:bg-white/5 border border-slate-200/80 dark:border-white/10 hover:border-emerald-500/30'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isSelected ? 'text-emerald-400' : 'text-slate-400'}`} />
+                <Icon className={`w-4 h-4 transition-transform duration-200 ${isSelected ? 'text-emerald-400 scale-110' : 'text-slate-400'}`} />
                 <span>{el.sanskrit}</span>
                 <span className="text-xs opacity-80 hidden md:inline">({el.devanagari})</span>
               </button>
@@ -235,7 +235,7 @@ export const MahabhutaFrameworkSection: React.FC = () => {
         </div>
 
         {/* Active Element Deep-Dive Card */}
-        <div className="mt-8 rounded-3xl bg-white dark:bg-charcoal-card border border-slate-200/80 dark:border-white/10 shadow-lg p-6 sm:p-10 transition-all">
+        <div key={activeElement} className="mt-8 rounded-3xl bg-white dark:bg-charcoal-card border border-slate-200/80 dark:border-white/10 shadow-xl p-6 sm:p-10 transition-all animate-fadeIn">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             
             {/* Left Column: Element Identity & Scope */}

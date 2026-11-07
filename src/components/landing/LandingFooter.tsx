@@ -17,7 +17,7 @@ export const LandingFooter: React.FC<LandingFooterProps> = ({ onScrollToSection 
   };
 
   return (
-    <footer className="bg-slate-900 text-white border-t border-white/10 pt-16 pb-12">
+    <footer className="bg-[#0D1D16] text-white border-t border-emerald-500/20 pt-16 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
         {/* Top Grid: Brand, Philosophy, Quick Links, Competition Badge */}
