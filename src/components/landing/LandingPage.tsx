@@ -7,6 +7,7 @@ import { FilmScene04Intelligence } from '../story/FilmScene04Intelligence';
 import { FilmScene05LiveWorld } from '../story/FilmScene05LiveWorld';
 import { FilmScene06Vision } from '../story/FilmScene06Vision';
 import { useSmoothScroll } from '../../hooks/useSmoothScroll';
+import { GlobalBotanicalBackground } from '../layout/GlobalBotanicalBackground';
 
 export const LandingPage: React.FC = () => {
   const { scrollTo } = useSmoothScroll({ enabled: true });
@@ -37,7 +38,10 @@ export const LandingPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#060D0A] text-slate-100 flex flex-col selection:bg-emerald-500 selection:text-white transition-colors duration-200">
+    <div className="relative min-h-screen bg-[#060D0A] text-slate-100 flex flex-col selection:bg-emerald-500 selection:text-white transition-colors duration-200">
+      {/* Global Ethereal Botanical Wallpaper */}
+      <GlobalBotanicalBackground variant="landing" />
+
       {/* Minimalist Film Navigation Chrome (Logo + 6 Dots + SKIP) */}
       <FilmNav
         activeSceneIndex={activeSceneIndex}

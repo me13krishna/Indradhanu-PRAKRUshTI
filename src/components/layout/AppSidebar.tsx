@@ -60,11 +60,11 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
           Hidden on mobile (< 768px), Icon-rail on md (768-1023px), Full rail on lg+
       ───────────────────────────────────────────────────────────── */}
       <aside
-        className="hidden md:flex flex-col justify-between w-20 lg:w-64 bg-[#10241B] dark:bg-[#07130E] border-r border-emerald-500/20 text-slate-200 transition-all duration-300 z-40 fixed top-0 bottom-0 left-0"
+        className="hidden md:flex flex-col justify-between w-20 lg:w-64 bg-[#10241B] dark:bg-[#07130E] border-r border-emerald-500/20 text-slate-200 transition-all duration-300 z-40 fixed top-0 bottom-0 left-0 overflow-hidden"
         aria-label="Platform Sidebar Navigation"
       >
         {/* Top: Logo & System Identity */}
-        <div>
+        <div className="relative z-10">
           <div
             onClick={() => handleTabClick('dashboard')}
             className="p-4 lg:p-5 flex items-center space-x-3 cursor-pointer group border-b border-emerald-500/15"
@@ -143,7 +143,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
         </div>
 
         {/* Bottom Utility Controls */}
-        <div className="p-3 border-t border-emerald-500/15 space-y-2">
+        <div className="relative z-10 p-3 border-t border-emerald-500/15 space-y-2">
           
           {/* Export Report Action */}
           <button
@@ -184,6 +184,21 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
               {isDark ? <Sun className="w-3.5 h-3.5 text-amber-300" /> : <Moon className="w-3.5 h-3.5" />}
             </button>
           </div>
+        </div>
+
+        {/* Full-Height Vertical Botanical Foliage Accent */}
+        <div
+          className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden"
+          aria-hidden="true"
+        >
+          <img
+            src="/sidebar-botanical-vertical.jpg"
+            alt=""
+            className="w-full h-full object-cover object-left opacity-20 dark:opacity-12 mix-blend-screen transition-opacity duration-700 filter brightness-95 contrast-125"
+            loading="eager"
+          />
+          {/* Subtle gradient overlay to preserve 100% component contrast */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#10241B]/30 via-transparent to-[#10241B]/50 dark:from-[#07130E]/30 dark:to-[#07130E]/50 pointer-events-none" />
         </div>
       </aside>
 
