@@ -23,7 +23,9 @@ import { WhatIfSimulator } from './components/WhatIfSimulator';
 import { KnowledgeBase } from './components/KnowledgeBase';
 import { AboutSection } from './components/AboutSection';
 import { ReportExportModal } from './components/ReportExportModal';
+import { EcologicalActionPlanModal } from './components/EcologicalActionPlanModal';
 import { GlobalBotanicalBackground } from './components/layout/GlobalBotanicalBackground';
+import { generateEcologicalActionPlan, type EcologicalActionPlan } from './services/nugenService';
 import { Loader2, Globe, ShieldCheck, Activity, Calendar, Bot, Cpu } from 'lucide-react';
 
 const MainAppContent: React.FC = () => {
@@ -40,7 +42,24 @@ const MainAppContent: React.FC = () => {
 
   const [selectedElementKey, setSelectedElementKey] = useState<MahabhutaElementKey | null>(null);
   const [showReportExport, setShowReportExport] = useState<boolean>(false);
+  const [actionPlan, setActionPlan] = useState<EcologicalActionPlan | null>(null);
+  const [showActionPlanModal, setShowActionPlanModal] = useState<boolean>(false);
+  const [generatingPlan, setGeneratingPlan] = useState<boolean>(false);
   const chatSectionRef = useRef<HTMLDivElement>(null);
+
+  const handleGenerateActionPlan = async () => {
+    if (!analysis) return;
+    setShowActionPlanModal(true);
+    setGeneratingPlan(true);
+    try {
+      const plan = await generateEcologicalActionPlan(analysis, language);
+      setActionPlan(plan);
+    } catch (e) {
+      console.error('Failed to generate action plan:', e);
+    } finally {
+      setGeneratingPlan(false);
+    }
+  };
 
   const loadAnalysis = useCallback(async (loc: LocationData) => {
     setLoading(true);
@@ -157,11 +176,12 @@ const MainAppContent: React.FC = () => {
             ) : (
               <div className="space-y-8 mt-4">
                 
-                {/* 0. Context Bar: Location chip, real source timestamp, model fidelity & report button */}
+                {/* 0. Context Bar: Location chip, real source timestamp, model fidelity, nugen action plan & report button */}
                 <DashboardContextBar
                   analysis={analysis}
                   onJumpToAssistant={handleJumpToAssistant}
                   onExportReport={() => setShowReportExport(true)}
+                  onGenerateActionPlan={handleGenerateActionPlan}
                 />
 
                 {/* Technical Mode Analytical Formula Banner */}
@@ -384,6 +404,16 @@ const MainAppContent: React.FC = () => {
         <ReportExportModal
           analysis={analysis}
           onClose={() => setShowReportExport(false)}
+        />
+      )}
+
+      {/* Modal 3: Nugen Domain-Aligned Ecological Action Plan Modal */}
+      {showActionPlanModal && (
+        <EcologicalActionPlanModal
+          plan={actionPlan}
+          loading={generatingPlan}
+          onClose={() => setShowActionPlanModal(false)}
+          onRegenerate={handleGenerateActionPlan}
         />
       )}
     </div>

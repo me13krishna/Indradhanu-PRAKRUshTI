@@ -5,6 +5,7 @@ import {
   clearNugenCredentials,
   buildNugenSystemPrompt,
   queryNugenAssistant,
+  generateEcologicalActionPlan,
 } from '../nugenService';
 import type { PrakrutiAnalysis } from '../../types/prakrushti';
 
@@ -143,5 +144,57 @@ describe('Nugen Intelligence Domain-Aligned Model Service', () => {
     expect(result.sender).toBe('assistant');
     expect(result.text.length).toBeGreaterThan(10);
     expect(result.verdictBadge?.label).toContain('Nugen');
+  });
+
+  it('generates a 3-tier ecological action plan with 0-6h, 6-24h, and 24-72h directives', async () => {
+    clearNugenCredentials();
+    const plan = await generateEcologicalActionPlan(mockAnalysis, 'en');
+    expect(plan.locationName).toBe('Pune');
+    expect(plan.prakrutiScore).toBe(68);
+    expect(plan.projectedPrakrutiScore).toBeGreaterThan(plan.prakrutiScore);
+    expect(plan.directives.length).toBeGreaterThanOrEqual(3);
+
+    const windows = plan.directives.map((d) => d.timeWindow);
+    expect(windows).toContain('0–6 Hours');
+    expect(windows).toContain('6–24 Hours');
+    expect(windows).toContain('24–72 Hours');
+  });
+
+  it('runs live Nugen inference for action plan when API key is configured', async () => {
+    saveNugenCredentials('active_key', 'prakrushti-eco-v1');
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({
+                executiveSummary: 'Emergency particulate mitigation active.',
+                directives: [
+                  {
+                    timeWindow: '0–6 Hours',
+                    title: 'Deploy Anti-Smog Water Sprinklers',
+                    description: 'Targeted spraying across dense corridors.',
+                    priority: 'critical',
+                    sector: 'Public Health',
+                    icon: '💨',
+                  },
+                ],
+                projectedPrakrutiScore: 82,
+                avoidedLossMetric: '30% drop in emergency admissions',
+              }),
+            },
+          },
+        ],
+      }),
+    });
+    globalThis.fetch = mockFetch;
+
+    const plan = await generateEcologicalActionPlan(mockAnalysis, 'en');
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    expect(plan.isNugenLive).toBe(true);
+    expect(plan.projectedPrakrutiScore).toBe(82);
+    expect(plan.executiveSummary).toContain('Emergency particulate mitigation');
   });
 });

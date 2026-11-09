@@ -1,18 +1,20 @@
 import React from 'react';
 import type { PrakrutiAnalysis } from '../types/prakrushti';
 import { useLanguage } from '../context/LanguageContext';
-import { MapPin, Clock, Database, MessageSquare, FileText, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { MapPin, Clock, Database, MessageSquare, FileText, AlertTriangle, CheckCircle2, Zap } from 'lucide-react';
 
 interface DashboardContextBarProps {
   analysis: PrakrutiAnalysis;
   onJumpToAssistant: () => void;
   onExportReport: () => void;
+  onGenerateActionPlan?: () => void;
 }
 
 export const DashboardContextBar: React.FC<DashboardContextBarProps> = ({
   analysis,
   onJumpToAssistant,
   onExportReport,
+  onGenerateActionPlan,
 }) => {
   const { language } = useLanguage();
   const isHi = language === 'hi';
@@ -83,6 +85,18 @@ export const DashboardContextBar: React.FC<DashboardContextBarProps> = ({
             <Database className="w-3 h-3 text-slate-400" />
             <span>NWP + CAMS + USGS</span>
           </div>
+
+          {/* Action: Nugen Domain-Aligned Ecological Action Plan */}
+          {onGenerateActionPlan && (
+            <button
+              onClick={onGenerateActionPlan}
+              className="flex items-center space-x-1.5 px-3 py-1 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold transition shadow-sm text-xs cursor-pointer"
+              title="Generate Nugen Domain-Aligned Ecological Action Plan"
+            >
+              <Zap className="w-3.5 h-3.5 fill-slate-950" />
+              <span>{isHi ? '⚡ नूजेन एक्शन प्लान' : '⚡ Nugen Action Plan'}</span>
+            </button>
+          )}
 
           {/* Action: Quick Jump to Assistant */}
           <button
