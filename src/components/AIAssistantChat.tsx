@@ -27,11 +27,25 @@ import {
   clearNugenCredentials,
 } from '../services/nugenService';
 
-interface AIAssistantChatProps {
-  analysis: PrakrutiAnalysis;
+function renderInline(text: string): React.ReactNode[] {
+  return text.split('**').map((part, i) =>
+    i % 2 === 1 ? (
+      <strong key={i} className="font-bold">
+        {part}
+      </strong>
+    ) : (
+      <React.Fragment key={i}>{part}</React.Fragment>
+    )
+  );
 }
 
-export const AIAssistantChat: React.FC<AIAssistantChatProps> = ({ analysis }) => {
+interface AIAssistantChatProps {
+  analysis: PrakrutiAnalysis;
+  variant?: 'card' | 'drawer';
+}
+
+export const AIAssistantChat: React.FC<AIAssistantChatProps> = ({ analysis, variant = 'card' }) => {
+  const isDrawer = variant === 'drawer';
   const { language } = useLanguage();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState<string>('');
@@ -42,6 +56,7 @@ export const AIAssistantChat: React.FC<AIAssistantChatProps> = ({ analysis }) =>
   const [inputModel, setInputModel] = useState<string>('prakrushti-eco-v1');
   const [saveSuccess, setSaveSuccess] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesScrollRef = useRef<HTMLDivElement>(null);
 
   const cityName = analysis.location.name.split(',')[0].trim();
 
@@ -82,7 +97,8 @@ export const AIAssistantChat: React.FC<AIAssistantChatProps> = ({ analysis }) =>
   }, [analysis.location.name, language, nugenConfig.apiKey, nugenConfig.modelId]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const box = messagesScrollRef.current;
+    if (box) box.scrollTo({ top: box.scrollHeight, behavior: 'smooth' });
   }, [messages, isTyping]);
 
   const handleSendMessage = async (textToSend?: string) => {
@@ -164,7 +180,14 @@ export const AIAssistantChat: React.FC<AIAssistantChatProps> = ({ analysis }) =>
   };
 
   return (
-    <div id="assistant-section" className="card-paper rounded-3xl p-5 sm:p-8 shadow-2xl border border-emerald-900/15 dark:border-white/10 relative overflow-hidden">
+    <div
+      id="assistant-section"
+      className={
+        isDrawer
+          ? 'h-full flex flex-col p-4 sm:p-5 relative overflow-hidden'
+          : 'card-paper rounded-3xl p-5 sm:p-8 shadow-2xl border border-emerald-900/15 dark:border-white/10 relative overflow-hidden'
+      }
+    >
       
       {/* Decorative subtle ambient background */}
       <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
@@ -262,7 +285,13 @@ export const AIAssistantChat: React.FC<AIAssistantChatProps> = ({ analysis }) =>
       </div>
 
       {/* Messages Scroll View */}
-      <div className="space-y-4 max-h-[460px] overflow-y-auto pr-1 sm:pr-2 mb-6 scrollbar-thin">
+      <div
+        ref={messagesScrollRef}
+        className={`space-y-4 overflow-y-auto pr-1 sm:pr-2 scrollbar-thin ${
+          isDrawer ? 'flex-1 min-h-0 mb-4' : 'max-h-[460px] mb-6'
+        }`}
+        data-lenis-prevent
+      >
         {messages.map((msg) => (
           <div
             key={msg.id}
@@ -311,7 +340,7 @@ export const AIAssistantChat: React.FC<AIAssistantChatProps> = ({ analysis }) =>
               >
                 {msg.text.split('\n\n').map((paragraph, pIdx) => (
                   <p key={pIdx} className="mb-2 last:mb-0">
-                    {paragraph}
+                    {renderInline(paragraph)}
                   </p>
                 ))}
               </div>

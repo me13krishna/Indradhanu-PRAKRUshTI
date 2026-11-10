@@ -1,106 +1,108 @@
 import React from 'react';
-import { ShieldCheck, AlertTriangle, AlertOctagon, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { useAnimatedValue } from './ui/primitives';
+import { scoreTone } from '../lib/tone';
 
 interface PrakrutiGaugeProps {
   score: number;
   overallStatus: 'Healthy / Optimal' | 'Balanced' | 'Under Stress' | 'Critical Stress';
-  locationName: string;
+  className?: string;
 }
 
-export const PrakrutiGauge: React.FC<PrakrutiGaugeProps> = ({ score, overallStatus, locationName }) => {
-  const { t } = useLanguage();
+const CX = 130;
+const CY = 130;
+const R = 104;
+const START = 135;
+const SWEEP = 270;
 
-  // Color mapping based on score
-  let strokeColor = '#52A373'; // Healthy Green
-  let badgeBg = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800';
-  let Icon = CheckCircle2;
+function polar(angleDeg: number, radius = R) {
+  const a = (angleDeg * Math.PI) / 180;
+  return { x: CX + radius * Math.cos(a), y: CY + radius * Math.sin(a) };
+}
 
-  if (score < 40) {
-    strokeColor = '#C4554D'; // Stressed Red
-    badgeBg = 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 border-rose-200 dark:border-rose-800';
-    Icon = AlertOctagon;
-  } else if (score < 70) {
-    strokeColor = '#E0A02D'; // Amber
-    badgeBg = 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-800';
-    Icon = AlertTriangle;
-  }
+function arcPath(sweepDeg: number) {
+  const s = polar(START);
+  const e = polar(START + sweepDeg);
+  return `M ${s.x} ${s.y} A ${R} ${R} 0 ${sweepDeg > 180 ? 1 : 0} 1 ${e.x} ${e.y}`;
+}
 
-  // SVG Gauge calculations
-  const radius = 75;
-  const strokeWidth = 14;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (score / 100) * circumference;
+export const PrakrutiGauge: React.FC<PrakrutiGaugeProps> = ({ score, overallStatus, className = '' }) => {
+  const { t, language } = useLanguage();
+  const statusHi: Record<PrakrutiGaugeProps['overallStatus'], string> = {
+    'Healthy / Optimal': 'स्वस्थ / इष्टतम',
+    Balanced: 'संतुलित',
+    'Under Stress': 'तनावग्रस्त',
+    'Critical Stress': 'गंभीर तनाव',
+  };
+  const tone = scoreTone(score);
+  const p = useAnimatedValue(score, 1.6);
+  const sweep = (Math.max(0, Math.min(100, p)) / 100) * SWEEP;
+  const knob = polar(START + sweep);
+  const ticks = Array.from({ length: 55 }, (_, i) => i);
 
   return (
-    <div className="card-paper rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center text-center relative overflow-hidden shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border border-emerald-900/10 dark:border-white/10 h-full group select-none">
-      
-      {/* Living breathing background aura */}
-      <div 
-        className="absolute -top-24 -right-24 w-72 h-72 rounded-full blur-3xl opacity-20 group-hover:opacity-35 pointer-events-none transition-all duration-700 animate-pulse-slow"
-        style={{ backgroundColor: strokeColor }}
-      />
-      <div 
-        className="absolute -bottom-24 -left-24 w-60 h-60 rounded-full blur-3xl opacity-15 group-hover:opacity-25 pointer-events-none transition-all duration-700"
-        style={{ backgroundColor: strokeColor }}
-      />
+    <div className={`relative ${className}`}>
+      <svg viewBox="0 0 260 260" className="w-full h-full" role="img" aria-label={`${t('prakrutiScore')} ${score} / 100`}>
+        <defs>
+          <linearGradient id="gaugeStroke" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor={tone.hex} stopOpacity="0.55" />
+            <stop offset="100%" stopColor={tone.hex} />
+          </linearGradient>
+          <filter id="gaugeGlow" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="5" result="b" />
+            <feMerge>
+              <feMergeNode in="b" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
 
-      <div className="flex items-center space-x-2 text-xs font-mono uppercase tracking-widest text-emerald-800 dark:text-emerald-400 mb-2 font-semibold">
-        <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-        <span>{t('prakrutiScore')}</span>
-      </div>
+        {ticks.map((i) => {
+          const angle = START + (i / (ticks.length - 1)) * SWEEP;
+          const lit = (i / (ticks.length - 1)) * 100 <= p;
+          const a = polar(angle, R - 16);
+          const b = polar(angle, R - (i % 6 === 0 ? 26 : 22));
+          return (
+            <line
+              key={i}
+              x1={a.x}
+              y1={a.y}
+              x2={b.x}
+              y2={b.y}
+              stroke={lit ? tone.hex : 'currentColor'}
+              strokeOpacity={lit ? 0.9 : 0.14}
+              strokeWidth={i % 6 === 0 ? 2 : 1.2}
+              strokeLinecap="round"
+            />
+          );
+        })}
 
-      {/* Hero Circular SVG Gauge */}
-      <div className="relative w-48 h-48 sm:w-56 sm:h-56 my-2 flex items-center justify-center">
-        <svg className="w-full h-full transform -rotate-90 drop-shadow-md" viewBox="0 0 180 180">
-          {/* Background circle track */}
-          <circle
-            cx="90"
-            cy="90"
-            r={radius}
-            className="stroke-slate-200/80 dark:stroke-white/10"
-            strokeWidth={strokeWidth}
-            fill="transparent"
-          />
-          {/* Animated score arc with luminous glow */}
-          <circle
-            cx="90"
-            cy="90"
-            r={radius}
-            stroke={strokeColor}
-            strokeWidth={strokeWidth}
-            strokeDasharray={circumference}
-            strokeDashoffset={strokeDashoffset}
+        <path d={arcPath(SWEEP)} fill="none" stroke="currentColor" strokeOpacity="0.1" strokeWidth="14" strokeLinecap="round" />
+        {sweep > 0.6 && (
+          <path
+            d={arcPath(sweep)}
+            fill="none"
+            stroke="url(#gaugeStroke)"
+            strokeWidth="14"
             strokeLinecap="round"
-            fill="transparent"
-            style={{
-              filter: `drop-shadow(0 0 6px ${strokeColor}88)`,
-            }}
-            className="transition-all duration-1000 ease-out"
+            filter="url(#gaugeGlow)"
           />
-        </svg>
+        )}
+        <circle cx={knob.x} cy={knob.y} r="9" fill="#fff" stroke={tone.hex} strokeWidth="4" />
+      </svg>
 
-        {/* Center score readout */}
-        <div className="absolute flex flex-col items-center justify-center transition-transform duration-300 group-hover:scale-105">
-          <span className="text-4xl sm:text-5xl font-serif font-extrabold tracking-tight text-slate-800 dark:text-slate-100">
-            {score}
-          </span>
-          <span className="text-xs text-slate-400 font-mono tracking-wider">/ 100</span>
-          <span className="text-[11px] font-devanagari text-emerald-700 dark:text-emerald-400 font-semibold mt-0.5">
-            प्रकृति सूचकांक
-          </span>
-        </div>
+      <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none pb-2">
+        <span className="display-number text-[4.2rem] sm:text-[4.8rem] text-slate-900 dark:text-white">{Math.round(p)}</span>
+        <span className="font-mono text-xs text-slate-400 mt-0.5">/ 100 · {t('prakrutiScore')}</span>
       </div>
-
-      {/* Status Badge */}
-      <div className={`mt-2 inline-flex items-center space-x-2 px-4 py-1.5 rounded-full text-xs font-bold border ${badgeBg} shadow-sm transition-transform duration-200 group-hover:scale-105`}>
-        <Icon className="w-4 h-4" />
-        <span>{overallStatus}</span>
+      <div className="absolute inset-x-0 bottom-[5%] flex justify-center pointer-events-none">
+        <span
+          className="px-3.5 py-1 rounded-full text-[11px] font-bold border backdrop-blur-sm"
+          style={{ color: tone.hex, background: tone.soft, borderColor: `${tone.hex}55` }}
+        >
+          {language === 'hi' ? statusHi[overallStatus] : overallStatus}
+        </span>
       </div>
-
-      <p className="mt-3 text-xs text-slate-500 dark:text-slate-400 max-w-xs font-sans leading-relaxed">
-        Unified environmental index for <strong className="text-slate-700 dark:text-slate-200">{locationName.split(',')[0]}</strong> across all five elemental dimensions.
-      </p>
     </div>
   );
 };
