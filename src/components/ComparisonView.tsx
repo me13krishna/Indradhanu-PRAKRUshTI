@@ -4,6 +4,9 @@ import { getPrakrutiAnalysis } from '../services/prakrushtiApi';
 import { searchLocations, PRESET_LOCATIONS } from '../services/geocoding';
 import { useLanguage } from '../context/LanguageContext';
 import { ElementalRealisticIcon } from './ElementalRealisticIcon';
+import { ComparisonRadar } from './ComparisonRadar';
+import { AnimatedNumber, Reveal, Skeleton, EASE } from './ui/primitives';
+import { motion } from 'motion/react';
 import {
   Sliders,
   ArrowRightLeft,
@@ -360,65 +363,77 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({ initialLocationA
       </div>
 
       {loading || !dataA || !dataB ? (
-        <div className="p-16 text-center text-slate-500 flex flex-col items-center justify-center space-y-3">
-          <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
-          <span className="text-sm font-semibold">
-            {isHi ? 'तुलनात्मक मौसमी एवं पंचमहाभूत डेटा संकलित हो रहा है...' : 'Fetching synchronized observations and computing scores...'}
-          </span>
+        <div className="space-y-5" aria-busy="true">
+          <div className="flex items-center gap-3 text-sm font-semibold text-slate-600 dark:text-slate-300">
+            <span className="live-dot" />
+            {isHi ? 'दोनों स्थानों का लाइव डेटा जुट रहा है…' : 'Gathering live data for both places…'}
+          </div>
+          <div className="grid lg:grid-cols-3 gap-5">
+            <Skeleton className="h-64 rounded-3xl" />
+            <Skeleton className="h-64 rounded-3xl" />
+            <Skeleton className="h-64 rounded-3xl" />
+          </div>
+          <Skeleton className="h-72 rounded-3xl" />
         </div>
       ) : (
         <div className="space-y-8">
           
           {/* Head-to-Head Composite Score Card */}
-          <div className="card-paper rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200/80 dark:border-white/10">
-            <div className="text-center mb-6">
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400 block mb-1">
-                {isHi ? 'प्रकृति सूचकांक अंतर (Net Delta)' : 'Composite Prakruti Score Differential'}
-              </span>
-              <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300">
-                <span>Delta (A − B):</span>
-                <span className={scoreDiff > 0 ? 'text-emerald-600 font-extrabold' : scoreDiff < 0 ? 'text-rose-500 font-extrabold' : 'text-slate-500 font-extrabold'}>
-                  {scoreDiff > 0 ? `+${scoreDiff}` : scoreDiff} pts
+          <Reveal>
+            <div className="card-paper gradient-border noise rounded-[2rem] p-6 sm:p-8 overflow-hidden">
+              <div className="text-center mb-6">
+                <span className="eyebrow block mb-2">
+                  {isHi ? 'प्रकृति सूचकांक अंतर' : 'Composite Prakruti score differential'}
                 </span>
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-slate-900/5 dark:bg-white/8 text-slate-800 dark:text-slate-100">
+                  {scoreDiff === 0 ? (
+                    <span>{isHi ? 'दोनों बराबर हैं' : 'A dead heat'}</span>
+                  ) : (
+                    <>
+                      <span className={scoreDiff > 0 ? 'text-emerald-500' : 'text-indigo-400'}>
+                        {(scoreDiff > 0 ? dataA : dataB).location.name.split(',')[0]}
+                      </span>
+                      <span>{isHi ? 'आगे है' : 'leads by'}</span>
+                      <span className="font-serif text-lg font-extrabold">{Math.abs(scoreDiff)}</span>
+                      <span>{isHi ? 'अंक' : 'pts'}</span>
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-stretch">
-              
-              {/* Score A Card */}
-              <div className="p-6 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/20 border-2 border-emerald-500/30 text-center flex flex-col justify-between">
-                <div>
-                  <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300 font-mono uppercase tracking-wider block">
-                    {dataA.location.name}
-                  </span>
-                  <div className="text-5xl font-serif font-extrabold text-emerald-800 dark:text-emerald-300 mt-3">
-                    {dataA.prakrutiScore}
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_minmax(260px,340px)_1fr] gap-6 items-center">
+                <div className="p-6 rounded-3xl bg-emerald-500/[0.08] border border-emerald-500/30 text-center">
+                  <span className="eyebrow block truncate">{dataA.location.name.split(',')[0]}</span>
+                  <div className="display-number text-7xl text-emerald-600 dark:text-emerald-300 mt-3">
+                    <AnimatedNumber value={dataA.prakrutiScore} />
                   </div>
                   <span className="text-xs font-mono text-slate-400 block mt-1">/ 100</span>
+                  <div className="mt-4 pt-3 border-t border-emerald-500/20 text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    {dataA.overallStatus}
+                  </div>
                 </div>
-                <div className="mt-4 pt-3 border-t border-emerald-200/50 dark:border-emerald-800/30 text-xs font-semibold text-slate-700 dark:text-slate-300">
-                  {dataA.overallStatus}
-                </div>
-              </div>
 
-              {/* Score B Card */}
-              <div className="p-6 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/20 border-2 border-indigo-500/30 text-center flex flex-col justify-between">
-                <div>
-                  <span className="text-xs font-bold text-indigo-800 dark:text-indigo-300 font-mono uppercase tracking-wider block">
-                    {dataB.location.name}
-                  </span>
-                  <div className="text-5xl font-serif font-extrabold text-indigo-800 dark:text-indigo-300 mt-3">
-                    {dataB.prakrutiScore}
+                <div className="order-first lg:order-none">
+                  <ComparisonRadar a={dataA.elements} b={dataB.elements} nameA={dataA.location.name} nameB={dataB.location.name} className="w-full max-w-[340px] mx-auto aspect-square" />
+                  <div className="mt-2 flex items-center justify-center gap-5 text-xs font-semibold">
+                    <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-300"><span className="w-3 h-1.5 rounded-full bg-emerald-400" />A</span>
+                    <span className="flex items-center gap-1.5 text-indigo-500 dark:text-indigo-300"><span className="w-3 h-1.5 rounded-full bg-indigo-400" />B</span>
+                  </div>
+                </div>
+
+                <div className="p-6 rounded-3xl bg-indigo-500/[0.08] border border-indigo-500/30 text-center">
+                  <span className="eyebrow block truncate !text-indigo-500 dark:!text-indigo-300">{dataB.location.name.split(',')[0]}</span>
+                  <div className="display-number text-7xl text-indigo-600 dark:text-indigo-300 mt-3">
+                    <AnimatedNumber value={dataB.prakrutiScore} />
                   </div>
                   <span className="text-xs font-mono text-slate-400 block mt-1">/ 100</span>
-                </div>
-                <div className="mt-4 pt-3 border-t border-indigo-200/50 dark:border-indigo-800/30 text-xs font-semibold text-slate-700 dark:text-slate-300">
-                  {dataB.overallStatus}
+                  <div className="mt-4 pt-3 border-t border-indigo-500/20 text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    {dataB.overallStatus}
+                  </div>
                 </div>
               </div>
-
             </div>
-          </div>
+          </Reveal>
 
           {/* 5 Panch Mahabhuta Side-by-Side Comparison Grid */}
           <div className="card-paper rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200/80 dark:border-white/10">
@@ -471,9 +486,12 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({ initialLocationA
                           <span className="font-bold text-emerald-700 dark:text-emerald-400">{elA.score}/100</span>
                         </div>
                         <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-white/10 overflow-hidden">
-                          <div
-                            className="h-full rounded-full transition-all duration-500 bg-emerald-600"
-                            style={{ width: `${elA.score}%` }}
+                          <motion.div
+                            className="h-full rounded-full bg-gradient-to-r from-emerald-600 to-emerald-400"
+                            initial={{ width: 0 }}
+                            whileInView={{ width: `${elA.score}%` }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.9, ease: EASE }}
                           />
                         </div>
                       </div>
@@ -484,9 +502,12 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({ initialLocationA
                           <span className="font-bold text-indigo-700 dark:text-indigo-400">{elB.score}/100</span>
                         </div>
                         <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-white/10 overflow-hidden">
-                          <div
-                            className="h-full rounded-full transition-all duration-500 bg-indigo-600"
-                            style={{ width: `${elB.score}%` }}
+                          <motion.div
+                            className="h-full rounded-full bg-gradient-to-r from-indigo-600 to-indigo-400"
+                            initial={{ width: 0 }}
+                            whileInView={{ width: `${elB.score}%` }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.9, delay: 0.1, ease: EASE }}
                           />
                         </div>
                       </div>

@@ -127,3 +127,39 @@ export async function searchLocations(query: string, signal?: AbortSignal): Prom
     );
   }
 }
+
+export async function reverseGeocode(lat: number, lng: number, signal?: AbortSignal): Promise<LocationData> {
+  const fallback: LocationData = {
+    name: `Pinned location (${lat.toFixed(3)}, ${lng.toFixed(3)})`,
+    latitude: lat,
+    longitude: lng,
+    countryCode: null,
+  };
+
+  try {
+    await scheduleNominatimRequest(signal);
+    if (signal?.aborted) return fallback;
+
+    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`;
+    const response = await fetch(url, { signal });
+    if (!response.ok) throw new Error(`Reverse geocoding failed: ${response.status}`);
+
+    const data = await response.json();
+    const a = data?.address ?? {};
+    const place = a.city || a.town || a.village || a.municipality || a.county || a.state_district || a.state;
+    const name = place
+      ? [place, a.country].filter(Boolean).join(', ')
+      : a.country
+      ? `Pinned point · ${a.country}`
+      : fallback.name;
+    return {
+      name,
+      latitude: lat,
+      longitude: lng,
+      countryCode: a.country_code ? String(a.country_code).toUpperCase() : null,
+    };
+  } catch (error: any) {
+    if (error?.name !== 'AbortError') console.warn('Reverse geocoding fallback:', error);
+    return fallback;
+  }
+}

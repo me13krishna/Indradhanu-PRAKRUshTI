@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 export type Language = 'en' | 'hi';
 
@@ -73,7 +73,22 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>('en');
+  const [language, setLanguage] = useState<Language>(() => {
+    try {
+      return localStorage.getItem('prakrushti_lang') === 'hi' ? 'hi' : 'en';
+    } catch {
+      return 'en';
+    }
+  });
+
+  useEffect(() => {
+    document.documentElement.lang = language;
+    try {
+      localStorage.setItem('prakrushti_lang', language);
+    } catch {
+      // storage unavailable
+    }
+  }, [language]);
 
   const t = (key: string): string => {
     if (translations[key]) {

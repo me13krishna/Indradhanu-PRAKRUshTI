@@ -1,39 +1,48 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useSyncExternalStore } from 'react';
 
 const THEME_KEY = 'prakrushti_theme';
+const listeners = new Set<() => void>();
 
-export function useTheme() {
-  const [isDark, setIsDark] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return false;
+function readInitial(): boolean {
+  if (typeof window === 'undefined') return true;
+  try {
     const stored = localStorage.getItem(THEME_KEY);
     if (stored === 'dark') return true;
     if (stored === 'light') return false;
-    return document.documentElement.classList.contains('dark') ||
-      window.matchMedia('(prefers-color-scheme: dark)').matches;
-  });
-
-  useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-      try {
-        localStorage.setItem(THEME_KEY, 'dark');
-      } catch {
-        // Safe fallback
-      }
-    } else {
-      document.documentElement.classList.remove('dark');
-      try {
-        localStorage.setItem(THEME_KEY, 'light');
-      } catch {
-        // Safe fallback
-      }
-    }
-  }, [isDark]);
-
-  const toggleTheme = useCallback(() => {
-    setIsDark((prev) => !prev);
-  }, []);
-
-  return { isDark, toggleTheme };
+  } catch {
+    // storage unavailable
+  }
+  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? true;
 }
 
+let current = readInitial();
+
+function apply(isDark: boolean) {
+  if (typeof document === 'undefined') return;
+  document.documentElement.classList.toggle('dark', isDark);
+}
+apply(current);
+
+function setDark(next: boolean) {
+  current = next;
+  apply(next);
+  try {
+    localStorage.setItem(THEME_KEY, next ? 'dark' : 'light');
+  } catch {
+    // storage unavailable
+  }
+  listeners.forEach((l) => l());
+}
+
+function subscribe(cb: () => void) {
+  listeners.add(cb);
+  return () => {
+    listeners.delete(cb);
+  };
+}
+
+export function useTheme() {
+  const isDark = useSyncExternalStore(subscribe, () => current, () => true);
+  const toggleTheme = useCallback(() => setDark(!current), []);
+  return { isDark, toggleTheme };
+}

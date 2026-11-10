@@ -5,13 +5,21 @@ export async function fetchWeatherData(lat: number, lng: number): Promise<{ weat
     const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,surface_pressure,wind_speed_10m,wind_gusts_10m,soil_moisture_0_to_1cm,soil_temperature_0cm,cloud_cover&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto`;
     const aqUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lng}&current=pm10,pm2_5,us_aqi,uv_index`;
 
-    const [weatherRes, aqRes] = await Promise.allSettled([
-      fetch(weatherUrl).then(r => r.json()),
-      fetch(aqUrl).then(r => r.json()),
-    ]);
+    const getJson = async (url: string) => {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Open-Meteo HTTP ${res.status}`);
+      return res.json();
+    };
+
+    const [weatherRes, aqRes] = await Promise.allSettled([getJson(weatherUrl), getJson(aqUrl)]);
 
     const weatherData = weatherRes.status === 'fulfilled' ? weatherRes.value : null;
     const aqData = aqRes.status === 'fulfilled' ? aqRes.value : null;
+
+    if (!weatherData?.current || typeof weatherData.current.temperature_2m !== 'number') {
+      throw new Error('Open-Meteo returned no current conditions');
+    }
+    const hasLiveAirQuality = typeof aqData?.current?.us_aqi === 'number' || typeof aqData?.current?.pm2_5 === 'number';
 
     const currentW = weatherData?.current || {};
     const dailyW = weatherData?.daily || {};
@@ -40,11 +48,15 @@ export async function fetchWeatherData(lat: number, lng: number): Promise<{ weat
         limitations: 'Spatial grid smoothing (0.1°); not direct local weather station thermometer',
       },
       airQuality: {
-        source: 'Copernicus Atmosphere Monitoring Service (CAMS) / Open-Meteo',
-        method: 'ATMOSPHERIC_DISPERSION_MODEL',
-        confidence: 0.88,
-        notes: 'Surface PM2.5, PM10 & European/US AQI chemical transport assimilation',
-        limitations: 'Regional 10km grid resolution; local street canyon microclimates may differ',
+        source: hasLiveAirQuality ? 'Copernicus Atmosphere Monitoring Service (CAMS) / Open-Meteo' : 'Derived baseline (air-quality feed unavailable)',
+        method: hasLiveAirQuality ? 'ATMOSPHERIC_DISPERSION_MODEL' : 'ESTIMATED_PROXY',
+        confidence: hasLiveAirQuality ? 0.88 : 0.4,
+        notes: hasLiveAirQuality
+          ? 'Surface PM2.5, PM10 & European/US AQI chemical transport assimilation'
+          : 'Air-quality service did not respond; AQI shown is a neutral baseline estimate',
+        limitations: hasLiveAirQuality
+          ? 'Regional 10km grid resolution; local street canyon microclimates may differ'
+          : 'Not a measurement. Retry to fetch live CAMS air quality',
       },
       soilMoisture: {
         source: isRealSoilMoisture ? 'ECMWF Integrated Forecasting System (IFS Land Model 0-1cm)' : 'Derived Thermal-Moisture Proxy',

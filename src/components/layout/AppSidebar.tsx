@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import {
   BarChart2,
   Sliders,
@@ -13,7 +14,8 @@ import {
   Compass,
   Menu,
   X,
-  ShieldCheck,
+  Sparkles,
+  Search,
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useRouter } from '../../context/RouterContext';
@@ -23,337 +25,303 @@ export interface AppSidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   onExportReport: () => void;
+  onOpenAssistant: () => void;
+  onOpenPalette: () => void;
   currentLocationName?: string;
 }
+
+const NAV = [
+  { id: 'dashboard', en: 'Dashboard', hi: 'डैशबोर्ड', icon: BarChart2 },
+  { id: 'compare', en: 'Compare', hi: 'तुलना', icon: Sliders },
+  { id: 'hotspots', en: 'Hotspots', hi: 'हॉटस्पॉट', icon: MapPin },
+  { id: 'simulator', en: 'Simulator', hi: 'सिमुलेटर', icon: Activity },
+  { id: 'knowledge', en: 'Knowledge', hi: 'ज्ञानकोष', icon: BookOpen },
+  { id: 'about', en: 'About', hi: 'परिचय', icon: Info },
+];
 
 export const AppSidebar: React.FC<AppSidebarProps> = ({
   activeTab,
   setActiveTab,
   onExportReport,
+  onOpenAssistant,
+  onOpenPalette,
   currentLocationName,
 }) => {
-  const { language, setLanguage, t } = useLanguage();
+  const { language, setLanguage } = useLanguage();
   const { navigate } = useRouter();
   const { isDark, toggleTheme } = useTheme();
-  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
-
+  const [drawer, setDrawer] = useState(false);
   const isHi = language === 'hi';
 
-  const navItems = [
-    { id: 'dashboard', labelEn: 'Console', labelHi: 'पंचमहाभूत', icon: BarChart2 },
-    { id: 'compare', labelEn: 'Compare', labelHi: 'तुलना', icon: Sliders },
-    { id: 'hotspots', labelEn: 'Hotspots', labelHi: 'हॉटस्पॉट', icon: MapPin },
-    { id: 'simulator', labelEn: 'Simulator', labelHi: 'सिमुलेटर', icon: Activity },
-    { id: 'knowledge', labelEn: 'Knowledge', labelHi: 'ज्ञानकोष', icon: BookOpen },
-    { id: 'about', labelEn: 'About', labelHi: 'परिचय', icon: Info },
-  ];
-
-  const handleTabClick = (tabId: string) => {
-    setActiveTab(tabId);
-    setMobileDrawerOpen(false);
+  const go = (id: string) => {
+    setActiveTab(id);
+    setDrawer(false);
   };
+
+  const railBtn =
+    'w-full touch-target px-3 py-2.5 rounded-xl text-[13px] font-medium flex items-center transition-colors text-emerald-50/70 hover:text-white hover:bg-white/8';
 
   return (
     <>
-      {/* ─────────────────────────────────────────────────────────────
-          1. DESKTOP & TABLET SIDEBAR (LEFT RAIL)
-          Hidden on mobile (< 768px), Icon-rail on md (768-1023px), Full rail on lg+
-      ───────────────────────────────────────────────────────────── */}
+      {/* Desktop / tablet rail */}
       <aside
-        className="hidden md:flex flex-col justify-between w-20 lg:w-64 bg-[#10241B] dark:bg-[#07130E] border-r border-emerald-500/20 text-slate-200 transition-all duration-300 z-40 fixed top-0 bottom-0 left-0 overflow-hidden"
-        aria-label="Platform Sidebar Navigation"
+        className="hidden md:flex flex-col justify-between w-20 lg:w-64 fixed top-0 bottom-0 left-0 z-40 bg-[#08130E]/85 backdrop-blur-2xl border-r border-white/[0.07] text-slate-200 overflow-hidden"
+        aria-label="Platform navigation"
       >
-        {/* Top: Logo & System Identity */}
+        <div className="absolute -top-24 -left-16 w-72 h-72 rounded-full bg-emerald-500/20 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 -right-20 w-64 h-64 rounded-full bg-amber-400/10 blur-3xl pointer-events-none" />
+
         <div className="relative z-10">
-          <div
-            onClick={() => handleTabClick('dashboard')}
-            className="p-4 lg:p-5 flex items-center space-x-3 cursor-pointer group border-b border-emerald-500/15"
+          <button
+            onClick={() => go('dashboard')}
+            className="w-full p-4 lg:p-5 flex items-center gap-3 group text-left"
+            aria-label="PRAKRUshTI home"
           >
-            <div className="relative flex-shrink-0">
+            <span className="relative flex-shrink-0">
               <img
                 src="/logo.jpg"
-                alt="PRAKRUshTI"
-                className="w-10 h-10 rounded-xl object-cover ring-2 ring-emerald-400/40 group-hover:scale-105 transition-transform"
+                alt=""
+                className="w-10 h-10 rounded-xl object-cover ring-1 ring-emerald-300/40 group-hover:ring-emerald-300/80 group-hover:scale-105 transition"
               />
-              <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full ring-2 ring-[#10241B]" />
-            </div>
+              <span className="absolute -bottom-0.5 -right-0.5 live-dot ring-2 ring-[#08130E] !w-2.5 !h-2.5" />
+            </span>
+            <span className="hidden lg:block min-w-0">
+              <span className="flex items-baseline gap-1.5">
+                <span className="font-serif text-[1.15rem] font-bold text-white tracking-tight">PRAKRUshTI</span>
+                <span className="font-devanagari text-[11px] text-emerald-300/90 font-bold">प्रकृति</span>
+              </span>
+              <span className="block text-[10px] font-mono text-emerald-200/60 tracking-wider uppercase">
+                {isHi ? 'पर्यावरण बुद्धिमत्ता' : 'Environmental AI'}
+              </span>
+            </span>
+          </button>
 
-            <div className="hidden lg:block overflow-hidden">
-              <div className="flex items-center space-x-1.5">
-                <span className="font-serif text-lg font-bold text-white tracking-tight group-hover:text-emerald-300 transition-colors">
-                  PRAKRUshTI
-                </span>
-                <span className="font-devanagari text-xs text-emerald-300/80 font-bold">
-                  (प्रकृति)
-                </span>
-              </div>
-              <p className="text-[10px] text-emerald-200/70 font-mono tracking-tight truncate">
-                Environmental Intelligence
-              </p>
-            </div>
+          <div className="px-3 lg:px-4">
+            <button
+              onClick={onOpenPalette}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/10 border border-white/10 text-slate-300 text-[13px] transition-colors"
+              title={isHi ? 'खोजें (Ctrl K)' : 'Search (Ctrl K)'}
+            >
+              <Search className="w-4 h-4 text-emerald-300 flex-shrink-0" />
+              <span className="hidden lg:inline flex-1 text-left truncate">
+                {currentLocationName ? currentLocationName.split(',')[0] : isHi ? 'स्थान खोजें' : 'Search places'}
+              </span>
+              <span className="hidden lg:inline kbd text-slate-400">Ctrl K</span>
+            </button>
           </div>
 
-          {/* Location Telemetry Pill (Desktop only) */}
-          {currentLocationName && (
-            <div className="hidden lg:block mx-3 my-3 p-2.5 rounded-xl bg-white/5 border border-white/10 text-xs">
-              <div className="text-[10px] font-mono text-emerald-300/80 uppercase tracking-wider flex items-center space-x-1">
-                <ShieldCheck className="w-3 h-3 text-emerald-400" />
-                <span>Live Feed Active</span>
-              </div>
-              <div className="font-semibold text-white truncate mt-0.5" title={currentLocationName}>
-                {currentLocationName.split(',')[0]}
-              </div>
-            </div>
-          )}
-
-          {/* Navigation Items List */}
-          <nav className="p-2 lg:p-3 space-y-1.5" aria-label="Main Navigation">
-            {navItems.map((item) => {
+          <div className="eyebrow !text-emerald-200/50 px-5 pt-6 pb-2 hidden lg:block">{isHi ? 'अन्वेषण' : 'Explore'}</div>
+          <nav className="px-2 lg:px-3 mt-3 lg:mt-0 space-y-1" aria-label="Main navigation">
+            {NAV.map((item) => {
               const Icon = item.icon;
-              const isActive = activeTab === item.id;
+              const active = activeTab === item.id;
               return (
                 <button
                   key={item.id}
-                  onClick={() => handleTabClick(item.id)}
-                  className={`w-full touch-target px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center transition-all duration-200 group relative ${
-                    isActive
-                      ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-950/50 ring-1 ring-emerald-400/50 font-bold'
-                      : 'text-emerald-100/75 hover:text-white hover:bg-white/10'
-                  }`}
-                  title={isHi ? item.labelHi : item.labelEn}
-                  aria-current={isActive ? 'page' : undefined}
+                  onClick={() => go(item.id)}
+                  className={`${railBtn} relative ${active ? '!text-white' : ''}`}
+                  title={isHi ? item.hi : item.en}
+                  aria-current={active ? 'page' : undefined}
                 >
-                  <Icon
-                    className={`w-4 h-4 flex-shrink-0 transition-transform ${
-                      isActive ? 'text-white scale-110' : 'text-emerald-300/90 group-hover:scale-105'
-                    }`}
-                  />
-                  <span className="ml-3 hidden lg:inline tracking-wide">
-                    {isHi ? item.labelHi : item.labelEn}
-                  </span>
-
-                  {/* Active Pip on Tablet Rail */}
-                  {isActive && (
-                    <span className="lg:hidden absolute right-1.5 w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                  {active && (
+                    <motion.span
+                      layoutId="sidebar-active"
+                      className="absolute inset-0 rounded-xl bg-gradient-to-r from-emerald-500/30 to-emerald-500/5 border border-emerald-300/30"
+                      transition={{ type: 'spring', stiffness: 400, damping: 34 }}
+                    />
                   )}
+                  {active && (
+                    <motion.span
+                      layoutId="sidebar-bar"
+                      className="absolute left-0 top-2 bottom-2 w-[3px] rounded-r-full bg-emerald-300"
+                      transition={{ type: 'spring', stiffness: 400, damping: 34 }}
+                    />
+                  )}
+                  <Icon className={`relative w-[18px] h-[18px] flex-shrink-0 ${active ? 'text-emerald-300' : ''}`} />
+                  <span className="relative ml-3 hidden lg:inline">{isHi ? item.hi : item.en}</span>
                 </button>
               );
             })}
           </nav>
         </div>
 
-        {/* Bottom Utility Controls */}
-        <div className="relative z-10 p-3 border-t border-emerald-500/15 space-y-2">
-          
-          {/* Export Report Action */}
+        <div className="relative z-10 p-3 lg:p-4 space-y-2">
           <button
-            onClick={onExportReport}
-            className="w-full touch-target px-3 py-2 rounded-xl text-xs font-medium text-emerald-200 hover:text-white hover:bg-white/10 flex items-center justify-center lg:justify-start transition-colors"
-            title={t('exportReport')}
+            onClick={onOpenAssistant}
+            className="group w-full touch-target relative overflow-hidden rounded-2xl px-3 py-3 flex items-center gap-3 bg-gradient-to-br from-emerald-500 to-emerald-700 text-white shadow-lg shadow-emerald-950/60 hover:shadow-emerald-500/30 hover:-translate-y-0.5 transition-all"
           >
-            <FileText className="w-4 h-4 text-emerald-300 flex-shrink-0" />
-            <span className="ml-3 hidden lg:inline">{t('exportReport')}</span>
+            <span className="absolute inset-0 bg-[linear-gradient(110deg,transparent_30%,rgba(255,255,255,0.22)_50%,transparent_70%)] -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+            <Sparkles className="relative w-5 h-5 flex-shrink-0" />
+            <span className="relative hidden lg:block text-left leading-tight">
+              <span className="block text-sm font-bold">{isHi ? 'AI से पूछें' : 'Ask the AI'}</span>
+              <span className="block text-[10px] text-emerald-50/80 font-mono">
+                {isHi ? 'आपके डेटा पर आधारित' : 'Grounded in live data'}
+              </span>
+            </span>
           </button>
 
-          {/* Return to Cinematic Story */}
-          <button
-            onClick={() => navigate('/?story=1')}
-            className="w-full touch-target px-3 py-2 rounded-xl text-xs font-medium text-emerald-200 hover:text-white hover:bg-white/10 flex items-center justify-center lg:justify-start transition-colors"
-            title="View Origin Story Experience"
-          >
-            <Compass className="w-4 h-4 text-emerald-300 flex-shrink-0" />
-            <span className="ml-3 hidden lg:inline">{isHi ? 'मूल कहानी देखें' : 'View Origin Story'}</span>
+          <button onClick={onExportReport} className={railBtn} title={isHi ? 'रिपोर्ट' : 'Export dossier'}>
+            <FileText className="w-[18px] h-[18px] flex-shrink-0 text-emerald-300/90" />
+            <span className="ml-3 hidden lg:inline">{isHi ? 'रिपोर्ट निर्यात' : 'Export dossier'}</span>
+          </button>
+          <button onClick={() => navigate('/?story=1')} className={railBtn} title="Origin story">
+            <Compass className="w-[18px] h-[18px] flex-shrink-0 text-emerald-300/90" />
+            <span className="ml-3 hidden lg:inline">{isHi ? 'मूल कहानी' : 'Origin story'}</span>
           </button>
 
-          {/* Language & Theme Controls Row */}
-          <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+          <div className="pt-2 border-t border-white/10 flex items-center justify-between lg:justify-start lg:gap-2 flex-col lg:flex-row gap-1">
             <button
               onClick={() => setLanguage(language === 'en' ? 'hi' : 'en')}
-              className="touch-target p-2 rounded-lg text-emerald-200 hover:text-white hover:bg-white/10 transition-colors flex items-center space-x-1.5 text-xs font-mono"
-              title="Toggle language"
+              className="touch-target px-2.5 py-2 rounded-lg text-emerald-100/80 hover:text-white hover:bg-white/8 flex items-center gap-1.5 text-xs font-mono"
+              aria-label="Toggle language"
             >
-              <Globe className="w-3.5 h-3.5" />
-              <span className="hidden lg:inline uppercase font-bold">{language === 'en' ? 'HI' : 'EN'}</span>
+              <Globe className="w-4 h-4" />
+              <span className="hidden lg:inline font-bold">{language === 'en' ? 'EN → हिं' : 'हिं → EN'}</span>
             </button>
-
             <button
               onClick={toggleTheme}
-              className="touch-target p-2 rounded-lg text-emerald-200 hover:text-white hover:bg-white/10 transition-colors"
-              title="Toggle theme"
+              className="touch-target p-2 rounded-lg text-emerald-100/80 hover:text-white hover:bg-white/8 lg:ml-auto"
+              aria-label="Toggle theme"
             >
-              {isDark ? <Sun className="w-3.5 h-3.5 text-amber-300" /> : <Moon className="w-3.5 h-3.5" />}
+              {isDark ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4" />}
             </button>
           </div>
-        </div>
-
-        {/* Full-Height Vertical Botanical Foliage Accent */}
-        <div
-          className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden"
-          aria-hidden="true"
-        >
-          <img
-            src="/sidebar-botanical-vertical.jpg"
-            alt=""
-            className="w-full h-full object-cover object-left opacity-20 dark:opacity-12 mix-blend-screen transition-opacity duration-700 filter brightness-95 contrast-125"
-            loading="eager"
-          />
-          {/* Subtle gradient overlay to preserve 100% component contrast */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#10241B]/30 via-transparent to-[#10241B]/50 dark:from-[#07130E]/30 dark:to-[#07130E]/50 pointer-events-none" />
         </div>
       </aside>
 
-      {/* ─────────────────────────────────────────────────────────────
-          2. MOBILE TOP BAR (< 768px)
-      ───────────────────────────────────────────────────────────── */}
-      <header className="md:hidden sticky top-0 z-40 bg-[#10241B]/95 dark:bg-[#07130E]/95 backdrop-blur-md border-b border-emerald-500/20 px-4 py-2.5 flex items-center justify-between text-white">
-        <div
-          onClick={() => handleTabClick('dashboard')}
-          className="flex items-center space-x-2.5 cursor-pointer touch-target"
-        >
-          <img
-            src="/logo.jpg"
-            alt="PRAKRUshTI"
-            className="w-8 h-8 rounded-lg object-cover ring-1 ring-emerald-400/40"
-          />
-          <div>
-            <span className="font-serif font-bold text-base text-white">PRAKRUshTI</span>
-            <span className="font-devanagari text-[10px] text-emerald-300 font-bold ml-1">(प्रकृति)</span>
-          </div>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          {/* Language Switcher */}
-          <button
-            onClick={() => setLanguage(language === 'en' ? 'hi' : 'en')}
-            className="p-1.5 rounded-lg text-emerald-200 hover:bg-white/10 text-xs font-mono font-bold"
-          >
-            {language === 'en' ? 'HI' : 'EN'}
+      {/* Mobile top bar */}
+      <header className="md:hidden sticky top-0 z-40 bg-[#08130E]/90 backdrop-blur-xl border-b border-white/10 px-4 py-2.5 flex items-center justify-between text-white">
+        <button onClick={() => go('dashboard')} className="flex items-center gap-2.5 touch-target">
+          <img src="/logo.jpg" alt="" className="w-8 h-8 rounded-lg object-cover ring-1 ring-emerald-300/40" />
+          <span className="font-serif font-bold text-base">PRAKRUshTI</span>
+        </button>
+        <div className="flex items-center gap-1">
+          <button onClick={onOpenPalette} className="touch-target p-2 rounded-lg text-emerald-100 hover:bg-white/10" aria-label="Search">
+            <Search className="w-5 h-5" />
           </button>
-
-          {/* Theme Switcher */}
-          <button onClick={toggleTheme} className="p-1.5 rounded-lg text-emerald-200 hover:bg-white/10">
-            {isDark ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4" />}
-          </button>
-
-          {/* Mobile Drawer Trigger */}
-          <button
-            onClick={() => setMobileDrawerOpen(true)}
-            className="p-1.5 rounded-lg text-emerald-200 hover:bg-white/10"
-            aria-label="Open navigation menu"
-          >
+          <button onClick={() => setDrawer(true)} className="touch-target p-2 rounded-lg text-emerald-100 hover:bg-white/10" aria-label="Open menu">
             <Menu className="w-5 h-5" />
           </button>
         </div>
       </header>
 
-      {/* ─────────────────────────────────────────────────────────────
-          3. MOBILE BOTTOM TAB BAR (< 768px)
-          Fixed bottom bar with large touch targets (>= 44px)
-      ───────────────────────────────────────────────────────────── */}
+      {/* Mobile bottom bar */}
       <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#10241B]/95 dark:bg-[#07130E]/95 backdrop-blur-xl border-t border-emerald-500/20 px-2 py-1 flex items-center justify-around shadow-2xl"
-        aria-label="Mobile Bottom Navigation"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#08130E]/92 backdrop-blur-2xl border-t border-white/10 px-1 pb-[env(safe-area-inset-bottom)] flex items-stretch justify-around"
+        aria-label="Mobile navigation"
       >
-        {navItems.slice(0, 4).map((item) => {
+        {NAV.slice(0, 4).map((item) => {
           const Icon = item.icon;
-          const isActive = activeTab === item.id;
+          const active = activeTab === item.id;
           return (
             <button
               key={item.id}
-              onClick={() => handleTabClick(item.id)}
-              className={`touch-target flex-1 py-1.5 flex flex-col items-center justify-center text-[10px] font-medium transition-colors ${
-                isActive ? 'text-emerald-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+              onClick={() => go(item.id)}
+              className={`touch-target relative flex-1 py-2 flex flex-col items-center justify-center text-[10px] font-medium ${
+                active ? 'text-emerald-300' : 'text-slate-400'
               }`}
             >
-              <Icon className={`w-5 h-5 mb-0.5 ${isActive ? 'text-emerald-400 scale-110' : 'text-slate-400'}`} />
-              <span>{isHi ? item.labelHi : item.labelEn}</span>
+              {active && (
+                <motion.span
+                  layoutId="mobile-active"
+                  className="absolute top-0 h-[2px] w-8 rounded-full bg-emerald-300"
+                  transition={{ type: 'spring', stiffness: 400, damping: 34 }}
+                />
+              )}
+              <Icon className="w-5 h-5 mb-0.5" />
+              <span>{isHi ? item.hi : item.en}</span>
             </button>
           );
         })}
-
-        {/* More Button */}
         <button
-          onClick={() => setMobileDrawerOpen(true)}
-          className="touch-target flex-1 py-1.5 flex flex-col items-center justify-center text-[10px] font-medium text-slate-400 hover:text-slate-200"
+          onClick={onOpenAssistant}
+          className="touch-target flex-1 py-2 flex flex-col items-center justify-center text-[10px] font-semibold text-emerald-300"
         >
-          <Menu className="w-5 h-5 mb-0.5 text-slate-400" />
-          <span>{isHi ? 'अधिक' : 'More'}</span>
+          <Sparkles className="w-5 h-5 mb-0.5" />
+          <span>AI</span>
         </button>
       </nav>
 
-      {/* ─────────────────────────────────────────────────────────────
-          4. MOBILE SLIDE-OVER DRAWER (< 768px)
-      ───────────────────────────────────────────────────────────── */}
-      {mobileDrawerOpen && (
-        <div className="md:hidden fixed inset-0 z-50 flex justify-end animate-fadeIn">
-          {/* Backdrop */}
-          <div
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm"
-            onClick={() => setMobileDrawerOpen(false)}
-          />
-
-          {/* Drawer Content */}
-          <div className="relative w-72 max-w-[85%] bg-[#10241B] text-slate-200 p-6 flex flex-col justify-between shadow-2xl border-l border-emerald-500/20">
-            <div>
-              <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-6">
-                <span className="font-serif font-bold text-lg text-white">Menu & Tools</span>
+      {/* Mobile drawer */}
+      <AnimatePresence>
+        {drawer && (
+          <motion.div
+            className="md:hidden fixed inset-0 z-50 flex justify-end"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setDrawer(false)} />
+            <motion.div
+              className="relative w-72 max-w-[85%] bg-[#0a1812] text-slate-200 p-5 flex flex-col justify-between border-l border-white/10"
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', stiffness: 360, damping: 36 }}
+            >
+              <div>
+                <div className="flex items-center justify-between pb-4 mb-4 border-b border-white/10">
+                  <span className="font-serif font-bold text-lg text-white">{isHi ? 'मेनू' : 'Menu'}</span>
+                  <button onClick={() => setDrawer(false)} className="p-1 text-slate-400 hover:text-white" aria-label="Close menu">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="space-y-1.5">
+                  {NAV.map((item) => {
+                    const Icon = item.icon;
+                    const active = activeTab === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => go(item.id)}
+                        className={`w-full touch-target px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-3 ${
+                          active ? 'bg-emerald-500/20 text-white border border-emerald-300/30' : 'text-slate-300 hover:bg-white/8'
+                        }`}
+                      >
+                        <Icon className="w-5 h-5 text-emerald-300" />
+                        {isHi ? item.hi : item.en}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="space-y-2 pt-5 border-t border-white/10">
                 <button
-                  onClick={() => setMobileDrawerOpen(false)}
-                  className="p-1 rounded-lg text-slate-400 hover:text-white"
+                  onClick={() => {
+                    onExportReport();
+                    setDrawer(false);
+                  }}
+                  className="w-full touch-target px-4 py-2.5 rounded-xl bg-white/10 text-white text-sm font-semibold flex items-center justify-center gap-2"
                 >
-                  <X className="w-5 h-5" />
+                  <FileText className="w-4 h-4 text-emerald-300" />
+                  {isHi ? 'रिपोर्ट निर्यात' : 'Export dossier'}
                 </button>
+                <button
+                  onClick={() => {
+                    navigate('/?story=1');
+                    setDrawer(false);
+                  }}
+                  className="w-full touch-target px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold flex items-center justify-center gap-2"
+                >
+                  <Compass className="w-4 h-4" />
+                  {isHi ? 'मूल कहानी' : 'Origin story'}
+                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setLanguage(language === 'en' ? 'hi' : 'en')}
+                    className="flex-1 touch-target px-3 py-2 rounded-xl bg-white/8 text-xs font-mono font-bold"
+                  >
+                    {language === 'en' ? 'हिन्दी' : 'English'}
+                  </button>
+                  <button onClick={toggleTheme} className="flex-1 touch-target px-3 py-2 rounded-xl bg-white/8 flex items-center justify-center" aria-label="Toggle theme">
+                    {isDark ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
-
-              <div className="space-y-2">
-                {navItems.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = activeTab === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => handleTabClick(item.id)}
-                      className={`w-full touch-target px-4 py-3 rounded-xl text-sm font-semibold flex items-center space-x-3 transition-colors ${
-                        isActive
-                          ? 'bg-emerald-600 text-white font-bold'
-                          : 'text-slate-300 hover:bg-white/10'
-                      }`}
-                    >
-                      <Icon className="w-5 h-5 text-emerald-400" />
-                      <span>{isHi ? item.labelHi : item.labelEn}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="pt-6 border-t border-white/10 space-y-3">
-              <button
-                onClick={() => {
-                  onExportReport();
-                  setMobileDrawerOpen(false);
-                }}
-                className="w-full touch-target px-4 py-2.5 rounded-xl bg-white/10 text-white text-xs font-semibold flex items-center justify-center space-x-2"
-              >
-                <FileText className="w-4 h-4 text-emerald-400" />
-                <span>{t('exportReport')}</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  navigate('/?story=1');
-                  setMobileDrawerOpen(false);
-                }}
-                className="w-full touch-target px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-semibold flex items-center justify-center space-x-2"
-              >
-                <Compass className="w-4 h-4" />
-                <span>{isHi ? 'मूल कहानी देखें' : 'View Origin Story'}</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };
-
