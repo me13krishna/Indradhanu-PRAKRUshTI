@@ -5,6 +5,8 @@ interface ParticleCanvasProps {
   className?: string;
   density?: 'low' | 'medium' | 'high';
   theme?: 'ambient' | 'prithvi' | 'jal' | 'agni' | 'vayu' | 'akash';
+  interactive?: boolean;
+  onPulse?: () => void;
 }
 
 interface Particle {
@@ -17,13 +19,26 @@ interface Particle {
   maxAlpha: number;
   pulseSpeed: number;
   pulsePhase: number;
+  ex: number;
+  ey: number;
+}
+
+interface Ripple {
+  x: number;
+  y: number;
+  r: number;
+  life: number;
 }
 
 export const ParticleCanvas: React.FC<ParticleCanvasProps> = ({
   className = '',
   density = 'medium',
   theme = 'ambient',
+  interactive = false,
+  onPulse,
 }) => {
+  const onPulseRef = useRef(onPulse);
+  onPulseRef.current = onPulse;
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const isReducedMotion = usePrefersReducedMotion();
@@ -92,12 +107,49 @@ export const ParticleCanvas: React.FC<ParticleCanvasProps> = ({
           maxAlpha: 0.25 + Math.random() * 0.35,
           pulseSpeed: 0.015 + Math.random() * 0.02,
           pulsePhase: Math.random() * Math.PI * 2,
+          ex: 0,
+          ey: 0,
         });
       }
     };
 
     resize();
     window.addEventListener('resize', resize);
+
+    const pointer = { x: 0, y: 0, active: false };
+    const ripples: Ripple[] = [];
+    const REACH = 170;
+
+    const toLocal = (e: PointerEvent) => {
+      const rect = container.getBoundingClientRect();
+      return { x: e.clientX - rect.left, y: e.clientY - rect.top, inside: e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom };
+    };
+    const onMove = (e: PointerEvent) => {
+      const l = toLocal(e);
+      pointer.x = l.x;
+      pointer.y = l.y;
+      pointer.active = l.inside;
+    };
+    const onDown = (e: PointerEvent) => {
+      const l = toLocal(e);
+      if (!l.inside) return;
+      ripples.push({ x: l.x, y: l.y, r: 4, life: 1 });
+      for (const p of particles) {
+        const dx = p.x - l.x;
+        const dy = p.y - l.y;
+        const dist = Math.hypot(dx, dy) || 1;
+        if (dist < 320) {
+          const f = (1 - dist / 320) * 5.5;
+          p.ex += (dx / dist) * f;
+          p.ey += (dy / dist) * f;
+        }
+      }
+      onPulseRef.current?.();
+    };
+    if (interactive) {
+      window.addEventListener('pointermove', onMove, { passive: true });
+      window.addEventListener('pointerdown', onDown, { passive: true });
+    }
 
     // Frame-rate monitoring to auto-throttle on low-tier mobile devices
     let lastTime = performance.now();
@@ -126,8 +178,21 @@ export const ParticleCanvas: React.FC<ParticleCanvasProps> = ({
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
-        p.x += p.vx;
-        p.y += p.vy;
+        let glow = 0;
+        if (interactive && pointer.active) {
+          const dx = pointer.x - p.x;
+          const dy = pointer.y - p.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist < REACH && dist > 1) {
+            glow = 1 - dist / REACH;
+            p.ex += (dx / dist) * glow * 0.09;
+            p.ey += (dy / dist) * glow * 0.09;
+          }
+        }
+        p.x += p.vx + p.ex;
+        p.y += p.vy + p.ey;
+        p.ex *= 0.95;
+        p.ey *= 0.95;
         p.pulsePhase += p.pulseSpeed;
 
         // Wrap around boundaries smoothly
@@ -136,13 +201,34 @@ export const ParticleCanvas: React.FC<ParticleCanvasProps> = ({
         if (p.y < -10) p.y = height + 10;
         if (p.y > height + 10) p.y = -10;
 
-        const currentAlpha = p.maxAlpha * (0.6 + 0.4 * Math.sin(p.pulsePhase));
+        const currentAlpha = p.maxAlpha * (0.6 + 0.4 * Math.sin(p.pulsePhase)) + glow * 0.55;
 
-        // Draw soft particle with radial gradient
+        if (glow > 0.05) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius * (3 + glow * 4), 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${glow * 0.14})`;
+          ctx.fill();
+        }
+
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${Math.max(0, currentAlpha)})`;
+        ctx.arc(p.x, p.y, p.radius * (1 + glow * 0.8), 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${Math.min(1, Math.max(0, currentAlpha))})`;
         ctx.fill();
+      }
+
+      for (let i = ripples.length - 1; i >= 0; i--) {
+        const rp = ripples[i];
+        rp.r += 7;
+        rp.life -= 0.022;
+        if (rp.life <= 0) {
+          ripples.splice(i, 1);
+          continue;
+        }
+        ctx.beginPath();
+        ctx.arc(rp.x, rp.y, rp.r, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${rp.life * 0.55})`;
+        ctx.lineWidth = 1.5 + rp.life * 2;
+        ctx.stroke();
       }
 
       animationFrameId = requestAnimationFrame(render);
@@ -181,8 +267,10 @@ export const ParticleCanvas: React.FC<ParticleCanvasProps> = ({
       observer.disconnect();
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('resize', resize);
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerdown', onDown);
     };
-  }, [density, theme, isReducedMotion]);
+  }, [density, theme, isReducedMotion, interactive]);
 
   if (isReducedMotion) {
     return null;

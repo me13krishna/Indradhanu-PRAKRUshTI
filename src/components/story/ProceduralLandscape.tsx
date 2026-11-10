@@ -4,10 +4,17 @@ import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 interface ProceduralLandscapeProps {
   scrollY?: number;
   className?: string;
+  pulseKey?: number;
 }
+
+const layer = (x: number, y: number, inverse = false): React.CSSProperties => ({
+  transform: `translate(calc(var(--px, 0) * ${inverse ? -x : x}px), calc(var(--py, 0) * ${inverse ? -y : y}px))`,
+  willChange: 'transform',
+});
 
 export const ProceduralLandscape: React.FC<ProceduralLandscapeProps> = ({
   className = '',
+  pulseKey = 0,
 }) => {
   const isReduced = usePrefersReducedMotion();
 
@@ -20,9 +27,36 @@ export const ProceduralLandscape: React.FC<ProceduralLandscapeProps> = ({
       <div className="absolute inset-0 bg-gradient-to-b from-[#0B1A14] via-[#10291E] to-[#1A382B] dark:from-[#060D0A] dark:via-[#091510] dark:to-[#0D1F18] transition-colors duration-700" />
 
       {/* Atmospheric Solar / Lunar Celestial Orb */}
-      <div className="absolute top-[12%] left-1/2 -translate-x-1/2 w-[340px] h-[340px] sm:w-[480px] sm:h-[480px] rounded-full bg-gradient-to-b from-amber-200/20 via-emerald-400/10 to-transparent blur-3xl pointer-events-none" />
+      <div style={layer(18, 8, true)} className="absolute inset-0">
+        <div className="absolute top-[12%] left-1/2 -translate-x-1/2 w-[340px] h-[340px] sm:w-[480px] sm:h-[480px] rounded-full bg-gradient-to-b from-amber-200/20 via-emerald-400/10 to-transparent blur-3xl pointer-events-none" />
+        <div className="absolute top-[18%] left-1/2 -translate-x-1/2 w-32 h-32 sm:w-44 sm:h-44 rounded-full bg-gradient-to-tr from-amber-100/30 via-emerald-200/15 to-transparent blur-xl pointer-events-none" />
+        <div
+          className="absolute top-[24%] left-1/2 -translate-x-1/2 w-14 h-14 sm:w-20 sm:h-20 rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, #fff7d6 0%, #fde68a 45%, rgba(253,230,138,0) 72%)', boxShadow: '0 0 90px 34px rgba(253,224,71,0.22)' }}
+        />
+        {Array.from({ length: 26 }).map((_, i) => (
+          <span
+            key={i}
+            className="absolute rounded-full bg-white"
+            style={{
+              left: `${(i * 37) % 100}%`,
+              top: `${(i * 53) % 34}%`,
+              width: i % 5 === 0 ? 3 : 2,
+              height: i % 5 === 0 ? 3 : 2,
+              animation: isReduced ? undefined : `starTwinkle ${2.6 + (i % 4)}s ease-in-out ${(i % 7) * 0.4}s infinite`,
+              opacity: 0.35,
+            }}
+          />
+        ))}
+      </div>
 
-      <div className="absolute top-[18%] left-1/2 -translate-x-1/2 w-32 h-32 sm:w-44 sm:h-44 rounded-full bg-gradient-to-tr from-amber-100/30 via-emerald-200/15 to-transparent blur-xl pointer-events-none" />
+      {pulseKey > 0 && (
+        <div
+          key={pulseKey}
+          className="absolute left-1/2 top-[30%] w-40 h-40 -translate-x-1/2 -translate-y-1/2 rounded-full border border-amber-200/60 pointer-events-none"
+          style={{ animation: 'flareRing 1.6s cubic-bezier(0.16,1,0.3,1) forwards' }}
+        />
+      )}
 
       {/* Multi-layered Procedural SVG Mountain Ridges */}
       <svg
@@ -53,7 +87,7 @@ export const ProceduralLandscape: React.FC<ProceduralLandscapeProps> = ({
 
           {/* Atmospheric Mist Gradient */}
           <linearGradient id="mistGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#D4AF37" stopOpacity="0.08" />
+            <stop offset="0%" stopColor="#D4AF37" stopOpacity="0" />
             <stop offset="50%" stopColor="#40916C" stopOpacity="0.12" />
             <stop offset="100%" stopColor="#10241B" stopOpacity="0" />
           </linearGradient>
@@ -67,40 +101,46 @@ export const ProceduralLandscape: React.FC<ProceduralLandscapeProps> = ({
         </defs>
 
         {/* Layer 1: Far Alpine Ridges */}
-        <path
-          d="M0 280L90 230L210 270L340 180L480 250L600 190L740 260L890 170L1030 240L1170 195L1310 265L1440 210V600H0V280Z"
-          fill="url(#farRidgeGrad)"
-          className={!isReduced ? 'transition-transform duration-1000' : ''}
-        />
-
-        {/* Far Valley Mist */}
-        <rect x="0" y="240" width="1440" height="120" fill="url(#mistGrad)" />
+        <g style={layer(10, 4)}>
+          <path
+            d="M-40 280L90 230L210 270L340 180L480 250L600 190L740 260L890 170L1030 240L1170 195L1310 265L1480 210V600H-40V280Z"
+            fill="url(#farRidgeGrad)"
+            className={!isReduced ? 'transition-transform duration-1000' : ''}
+          />
+          <rect x="-40" y="240" width="1520" height="120" fill="url(#mistGrad)" />
+        </g>
 
         {/* Layer 2: Mid-tier Forest Ridges */}
-        <path
-          d="M0 350L130 300L270 360L420 285L560 340L690 295L840 370L980 305L1120 365L1280 310L1440 375V600H0V350Z"
-          fill="url(#midRidgeGrad)"
-        />
+        <g style={layer(22, 7)}>
+          <path
+            d="M-60 350L130 300L270 360L420 285L560 340L690 295L840 370L980 305L1120 365L1280 310L1500 375V600H-60V350Z"
+            fill="url(#midRidgeGrad)"
+          />
+        </g>
 
         {/* Layer 3: Hydrological River Flowing Across the Valley */}
-        <path
-          d="M720 370 C 740 420, 680 460, 710 510 C 730 550, 790 570, 810 600 L 730 600 C 700 570, 660 540, 650 500 C 640 450, 690 410, 700 370 Z"
-          fill="url(#riverGrad)"
-          className="opacity-70"
-        />
+        <g style={layer(22, 7)}>
+          <path
+            d="M720 370 C 740 420, 680 460, 710 510 C 730 550, 790 570, 810 600 L 730 600 C 700 570, 660 540, 650 500 C 640 450, 690 410, 700 370 Z"
+            fill="url(#riverGrad)"
+            className="opacity-70"
+          />
+        </g>
 
         {/* Layer 4: Foreground Organic Slopes */}
-        <path
-          d="M0 450L180 405L360 470L540 415L750 490L960 420L1180 480L1440 430V600H0V450Z"
-          fill="url(#foreRidgeGrad)"
-        />
+        <g style={layer(40, 12)}>
+          <path
+            d="M-90 450L180 405L360 470L540 415L750 490L960 420L1180 480L1530 430V620H-90V450Z"
+            fill="url(#foreRidgeGrad)"
+          />
+        </g>
 
         {/* Gentle Ambient Base Vignette */}
         <rect x="0" y="480" width="1440" height="120" fill="url(#mistGrad)" opacity="0.4" />
       </svg>
 
       {/* Subtle Bottom Ground Fade into following scene */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-paper dark:from-charcoal via-paper/60 dark:via-charcoal/60 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#0C1713] via-[#0C1713]/60 to-transparent" />
     </div>
   );
 };
