@@ -8,6 +8,11 @@ interface FilmNavProps {
   onSelectScene?: (index: number) => void;
 }
 
+const isHiNames = (lang: string) =>
+  lang === 'hi'
+    ? ['जागृति', 'कारण और प्रभाव', 'पाँच तत्व', 'बुद्धिमत्ता', 'आपकी धरती', 'दृष्टि']
+    : ['Awakening', 'Cause & Effect', 'Elements', 'Intelligence', 'Your World', 'Vision'];
+
 export const FilmNav: React.FC<FilmNavProps> = ({
   activeSceneIndex,
   onSelectScene,
@@ -15,10 +20,25 @@ export const FilmNav: React.FC<FilmNavProps> = ({
   const { navigate } = useRouter();
   const { language, setLanguage } = useLanguage();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const names = isHiNames(language);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement | null;
+      if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)) return;
+      if (e.key === 'ArrowRight' && activeSceneIndex < 5) onSelectScene?.(activeSceneIndex + 1);
+      if (e.key === 'ArrowLeft' && activeSceneIndex > 0) onSelectScene?.(activeSceneIndex - 1);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [activeSceneIndex, onSelectScene]);
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 40);
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(max > 0 ? Math.min(1, window.scrollY / max) : 0);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
@@ -46,6 +66,11 @@ export const FilmNav: React.FC<FilmNavProps> = ({
           : 'py-5 px-4 sm:px-8 bg-gradient-to-b from-black/70 via-black/30 to-transparent'
       }`}
     >
+      <div
+        className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300 transition-[width] duration-150"
+        style={{ width: `${progress * 100}%` }}
+        aria-hidden="true"
+      />
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         
         {/* Left: PRAKRUSHTI Brand Logo & Title */}
@@ -91,7 +116,8 @@ export const FilmNav: React.FC<FilmNavProps> = ({
               <button
                 key={idx}
                 onClick={() => handleDotClick(idx)}
-                aria-label={`Jump to scene ${idx + 1}`}
+                aria-label={`Jump to scene ${idx + 1}: ${names[idx]}`}
+                title={names[idx]}
                 aria-current={isActive ? 'step' : undefined}
                 className={`transition-all duration-300 rounded-full ${
                   isActive

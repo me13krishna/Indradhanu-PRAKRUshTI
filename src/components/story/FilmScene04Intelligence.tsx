@@ -1,4 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useInView } from 'motion/react';
+import { SignalStreamCanvas } from './SignalStreamCanvas';
+import { SceneEyebrow } from './SceneHint';
+import { useAnimatedValue } from '../ui/primitives';
 import { useLanguage } from '../../context/LanguageContext';
 import {
   ShieldCheck,
@@ -17,7 +21,18 @@ export const FilmScene04Intelligence: React.FC<FilmScene04IntelligenceProps> = (
   onScrollToNext,
 }) => {
   const { language } = useLanguage();
-  const [pipelinePhase, setPipelinePhase] = useState<number>(2); // 0: Sense, 1: Clean, 2: Score, 3: Guide
+  const [pipelinePhase, setPipelinePhase] = useState<number>(0);
+  const [touched, setTouched] = useState(false);
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const inView = useInView(sectionRef, { amount: 0.5 });
+  const score = useAnimatedValue(pipelinePhase >= 2 ? 74 : 0, 1.2);
+
+  useEffect(() => {
+    if (!inView || touched) return;
+    setPipelinePhase(0);
+    const timers = [1, 2, 3].map((p) => setTimeout(() => setPipelinePhase(p), p * 2600));
+    return () => timers.forEach(clearTimeout);
+  }, [inView, touched]);
   const isHi = language === 'hi';
 
   const phases = [
@@ -40,6 +55,7 @@ export const FilmScene04Intelligence: React.FC<FilmScene04IntelligenceProps> = (
 
   return (
     <section
+      ref={sectionRef}
       id="scene-4"
       className="relative min-h-screen-dynamic w-full flex flex-col justify-between py-20 px-4 sm:px-8 bg-[#050C09] text-white overflow-hidden select-none transition-colors duration-700"
       aria-label="Scene 4: The Intelligence Engine"
@@ -50,7 +66,8 @@ export const FilmScene04Intelligence: React.FC<FilmScene04IntelligenceProps> = (
 
       {/* Headline: Max 4 Words + Caption: 4 Words */}
       <div className="relative z-10 max-w-4xl mx-auto w-full text-center pt-2">
-        <h2 className="text-fluid-title font-serif font-bold text-white tracking-tight leading-tight">
+        <SceneEyebrow n="04" label={isHi ? 'बुद्धिमत्ता' : 'The Intelligence'} />
+        <h2 className="text-fluid-title font-serif font-bold story-title tracking-tight leading-tight">
           {isHi ? 'सटीक संकेत। स्पष्ट बुद्धिमत्ता।' : 'Raw signals. Clear intelligence.'}
         </h2>
         <p className="text-xs sm:text-sm font-mono tracking-widest uppercase text-emerald-400/90 mt-2">
@@ -62,31 +79,14 @@ export const FilmScene04Intelligence: React.FC<FilmScene04IntelligenceProps> = (
       <div className="relative z-10 max-w-4xl mx-auto w-full my-auto py-6">
         
         {/* Transparent Core Chamber */}
-        <div className="relative w-full h-72 sm:h-96 rounded-3xl bg-black/50 border border-teal-500/20 backdrop-blur-2xl overflow-hidden shadow-2xl flex items-center justify-center p-6">
+        <div className="story-stage relative w-full h-72 sm:h-96 rounded-3xl overflow-hidden flex items-center justify-center p-6">
           
-          {/* Animated Ambient Light Trails & Signal Streams */}
-          <svg
-            className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-            viewBox="0 0 600 300"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            {/* Raw Incoming Signal Streams (Left to Center) */}
-            <g strokeWidth="2" strokeDasharray="6 8" className="animate-pulse">
-              <path d="M40 80 C 140 80, 200 130, 300 150" stroke="#1B6B93" strokeOpacity="0.7" />
-              <path d="M40 120 C 150 120, 200 140, 300 150" stroke="#D9822B" strokeOpacity="0.7" />
-              <path d="M40 180 C 150 180, 200 160, 300 150" stroke="#6FA8C9" strokeOpacity="0.7" />
-              <path d="M40 220 C 140 220, 200 170, 300 150" stroke="#C97B4A" strokeOpacity="0.7" />
-            </g>
+          <SignalStreamCanvas phase={pipelinePhase} />
 
-            {/* Glowing Visual Filter Gate (Vertical Luminescent Line) */}
-            <line x1="200" y1="40" x2="200" y2="260" stroke="#40916C" strokeWidth="2" strokeDasharray="4 4" strokeOpacity="0.5" />
-            <circle cx="200" cy="150" r="18" fill="#40916C" fillOpacity="0.15" />
-
-            {/* Forward-Looking Temporal Ripples (Center to Right) */}
-            <circle cx="300" cy="150" r="60" stroke="#40916C" strokeWidth="1" strokeOpacity="0.4" className="animate-ping" style={{ animationDuration: '4s' }} />
-            <circle cx="300" cy="150" r="90" stroke="#40916C" strokeWidth="0.75" strokeOpacity="0.2" className="animate-ping" style={{ animationDuration: '4s', animationDelay: '1.5s' }} />
-          </svg>
+          <div className="absolute left-4 top-3 text-[10px] font-mono uppercase tracking-wider text-slate-400 flex items-center gap-3">
+            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-slate-400" />{isHi ? 'शोर' : 'Noise'}</span>
+            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-400" />{isHi ? 'संकेत' : 'Signal'}</span>
+          </div>
 
           {/* The See-Through Transparent Glass Core (Conveys "No Black Box") */}
           <div className="relative z-10 w-44 h-44 sm:w-56 sm:h-56 rounded-full bg-slate-900/40 border border-white/30 backdrop-blur-md shadow-2xl flex items-center justify-center specular-border">
@@ -120,13 +120,13 @@ export const FilmScene04Intelligence: React.FC<FilmScene04IntelligenceProps> = (
                   <div className="flex flex-col items-center animate-fadeIn">
                     <ShieldCheck className="w-10 h-10 text-emerald-400 drop-shadow-md" />
                     <span className="font-mono text-[9px] text-emerald-300 uppercase tracking-widest mt-1">
-                      Safe
+                      {isHi ? 'सुरक्षित' : 'Safe'}
                     </span>
                   </div>
                 ) : (
                   <div className="flex flex-col items-center">
                     <span className="font-serif font-bold text-3xl sm:text-4xl text-emerald-300 drop-shadow-md">
-                      {pipelinePhase >= 2 ? '74' : '...'}
+                      {pipelinePhase >= 2 ? Math.round(score) : '...'}
                     </span>
                     <span className="font-mono text-[9px] text-slate-300 uppercase tracking-widest">
                       Index
@@ -136,6 +136,15 @@ export const FilmScene04Intelligence: React.FC<FilmScene04IntelligenceProps> = (
               </div>
             </div>
 
+          </div>
+
+          <div className="absolute left-4 right-4 bottom-3 text-center text-[11px] sm:text-xs font-sans text-slate-200/90 min-h-5">
+            {[
+              isHi ? 'कच्चे संकेत शोर के साथ आते हैं' : 'Raw signals arrive mixed with noise',
+              isHi ? 'फ़िल्टर शोर को रोकता है, संकेत आगे बढ़ते हैं' : 'The filter blocks the noise. Clean signals pass.',
+              isHi ? 'साफ़ संकेत एक स्कोर बनते हैं' : 'Clean signals fuse into one score',
+              isHi ? 'स्कोर सलाह बनता है: दोपहर में बाहर कम निकलें' : 'The score becomes advice: limit midday outdoor activity',
+            ][pipelinePhase]}
           </div>
 
           {/* Temporal Forecast Pulse Badge (Right) */}
@@ -159,7 +168,10 @@ export const FilmScene04Intelligence: React.FC<FilmScene04IntelligenceProps> = (
             return (
               <button
                 key={p.num}
-                onClick={() => setPipelinePhase(idx)}
+                onClick={() => {
+                  setTouched(true);
+                  setPipelinePhase(idx);
+                }}
                 className={`touch-target flex-1 p-2 sm:p-3 rounded-2xl border text-center transition-all duration-200 flex flex-col items-center justify-center ${
                   isCurrent
                     ? 'bg-emerald-600 text-white shadow-xl scale-105 border-transparent ring-2 ring-emerald-400/30'
@@ -177,6 +189,7 @@ export const FilmScene04Intelligence: React.FC<FilmScene04IntelligenceProps> = (
             );
           })}
         </div>
+
 
       </div>
 

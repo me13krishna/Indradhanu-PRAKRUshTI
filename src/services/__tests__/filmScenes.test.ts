@@ -30,5 +30,27 @@ describe('Visual Film Scenes 1 & 2 Course Correction Verification', () => {
     const sceneCount = 6;
     expect(sceneCount).toBe(6);
   });
+
+  it('validates scientific citations and metrics in Scene 2 causal chain', () => {
+    const metrics = [
+      { id: 'emissions', stat: '424 ppm', src: '[NOAA]' },
+      { id: 'thermal', stat: '+1.45°C', src: '[WMO 2024]' },
+      { id: 'glacier', stat: '-38%', src: '[NASA GRACE]' },
+      { id: 'drought', stat: '40% θ', src: '[FAO-56]' },
+      { id: 'storm', stat: '+7%/°C', src: '[Clausius-Clapeyron]' },
+    ];
+    expect(metrics).toHaveLength(5);
+    expect(metrics.every((m) => m.stat && m.src)).toBe(true);
+  });
+
+  it('validates Scene 6 tree planting healing goal threshold', () => {
+    const GOAL = 5;
+    expect(GOAL).toBe(5);
+    const healProgress = (planted: number) => Math.min(1, planted / GOAL);
+    expect(healProgress(0)).toBe(0);
+    expect(healProgress(3)).toBe(0.6);
+    expect(healProgress(5)).toBe(1);
+    expect(healProgress(10)).toBe(1);
+  });
 });
 

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { LocationData } from '../types/prakrushti';
 import { PRESET_LOCATIONS } from '../services/geocoding';
 
@@ -80,6 +80,19 @@ export function useLocationState(route: string = '/app') {
     typeof window === 'undefined' ? 'dashboard' : readTabFromUrl(window.location.search)
   );
 
+  const prevRoute = useRef(route);
+  const skipWrite = useRef(false);
+
+  useEffect(() => {
+    if (route === '/app' && prevRoute.current !== '/app') {
+      const fromUrl = readLocationFromUrl(window.location.search);
+      if (fromUrl) setLocationState(fromUrl);
+      if (new URLSearchParams(window.location.search).has('tab')) setTabState(readTabFromUrl(window.location.search));
+      skipWrite.current = true;
+    }
+    prevRoute.current = route;
+  }, [route]);
+
   const setLocation = useCallback((loc: LocationData) => {
     setLocationState(loc);
     setRecents((prev) => {
@@ -105,6 +118,10 @@ export function useLocationState(route: string = '/app') {
       // storage unavailable
     }
     if (typeof window === 'undefined' || route !== '/app') return;
+    if (skipWrite.current) {
+      skipWrite.current = false;
+      return;
+    }
     const url = new URL(window.location.href);
     url.searchParams.set('lat', location.latitude.toFixed(4));
     url.searchParams.set('lng', location.longitude.toFixed(4));
